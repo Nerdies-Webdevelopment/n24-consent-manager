@@ -960,65 +960,17 @@ msgstr "When external font files are requested, technical access data may be tra
 msgid "Externe Bereitstellung von Schriftarten über Adobe Fonts."
 msgstr "External delivery of fonts through Adobe Fonts."
 
-msgid "Content-Blocker"
-msgstr "Content blockers"
-
-msgid "Content-Blocker Titel"
-msgstr "Content blocker title"
-
-msgid "Content-Blocker Text"
-msgstr "Content blocker text"
-
-msgid "Content-Blocker Button"
-msgstr "Content blocker button"
-
-msgid "Content-Blocker Hinweis ohne Dienst"
-msgstr "Content blocker notice without service"
-
-msgid "Content-Blocker ersetzen externe Inhalte wie Videos, Karten oder Social-Media-Embeds durch einen Platzhalter. Der Originalinhalt wird erst geladen, wenn der passende Dienst erlaubt wurde."
-msgstr "Content blockers replace external content such as videos, maps, or social media embeds with a placeholder. The original content is loaded only after the matching service has been allowed."
-
-msgid "Instagram manuell einfügen"
-msgstr "Add Instagram manually"
-
-msgid "Wenn WordPress einen Instagram-Link nicht einbetten kann, nutze einen Shortcode-Block mit:"
-msgstr "If WordPress cannot embed an Instagram link, use a Shortcode block with:"
-
-msgid "Content-Blocker aktivieren"
-msgstr "Enable content blockers"
-
 msgid "Platzhalter-Titel"
 msgstr "Placeholder title"
 
 msgid "Platzhalter-Text"
 msgstr "Placeholder text"
 
-msgid "Button-Text"
-msgstr "Button text"
-
 msgid "Hinweis, wenn kein passender Dienst aktiv ist"
 msgstr "Notice when no matching service is active"
 
-msgid "Automatisch erkannte Inhalte"
-msgstr "Automatically detected content"
-
-msgid "Blocker"
-msgstr "Blocker"
-
-msgid "Verknüpfter Dienst"
-msgstr "Linked service"
-
-msgid "Erkannte Quellen"
-msgstr "Detected sources"
-
 msgid "Aktiv"
 msgstr "Active"
-
-msgid "Blockieren"
-msgstr "Block"
-
-msgid "Wichtig: Der verknüpfte Dienst sollte unter Marketing angelegt und aktiviert sein, damit Besucher den Inhalt gezielt freischalten können."
-msgstr "Important: The linked service should be created and enabled under Marketing so visitors can unlock the content selectively."
 
 msgid "Externer Inhalt blockiert"
 msgstr "External content blocked"
@@ -1073,9 +1025,6 @@ msgstr "terms of use"
 
 msgid "Farben im Video-Platzhalter"
 msgstr "Colors in the video placeholder"
-
-msgid "Farben im Inhalts-Platzhalter"
-msgstr "Colors in the content placeholder"
 
 msgid "Link Nutzungsbedingungen"
 msgstr "Terms link"

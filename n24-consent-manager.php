@@ -2,7 +2,7 @@
 /**
  * Plugin Name: N24 Consent Manager
  * Description: DSGVO Consent-Banner mit einstellbaren Farben, Icon, Texten und Cookie-Einstellungen.
- * Version: 1.8.44
+ * Version: 1.8.45
  * Author: Nerdies24
  * Text Domain: n24-consent-manager
  * Domain Path: /languages
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 
 final class N24_Consent_Manager
 {
-    private const VERSION = '1.8.44';
+    private const VERSION = '1.8.45';
     private const TEXT_DOMAIN = 'n24-consent-manager';
     private const OPTION_NAME = 'n24_consent_manager_options';
     private const LOG_TABLE_VERSION = '1.0';
@@ -2731,17 +2731,6 @@ html.consent-pending #consent-banner * {
         );
     }
 
-    private function render_plain_textarea_row(string $key, string $label, array $options): void
-    {
-        printf(
-            '<tr><th scope="row"><label for="n24-consent-manager-%1$s">%2$s</label></th><td><textarea id="n24-consent-manager-%1$s" class="large-text" rows="3" name="%3$s[%1$s]">%4$s</textarea></td></tr>',
-            esc_attr($key),
-            esc_html($label),
-            esc_attr(self::OPTION_NAME),
-            esc_textarea($options[$key] ?? '')
-        );
-    }
-
     private function render_service_settings_panel(string $category, string $title, array $options): void
     {
         $services = $this->get_admin_services_for_category($category, $options);
@@ -2822,78 +2811,6 @@ html.consent-pending #consent-banner * {
                     </div>
                 </section>
             <?php endforeach; ?>
-        </div>
-        <?php
-    }
-
-    private function render_content_blocker_settings_panel(array $options): void
-    {
-        $blockers = $this->get_content_blocker_definitions();
-        ?>
-        <div class="n24cm-content-blocker-settings">
-            <p><?php echo esc_html__('Content-Blocker ersetzen externe Inhalte wie Videos, Karten oder Social-Media-Embeds durch einen Platzhalter. Der Originalinhalt wird erst geladen, wenn der passende Dienst erlaubt wurde.', self::TEXT_DOMAIN); ?></p>
-            <div class="notice notice-info inline">
-                <p>
-                    <strong><?php echo esc_html__('Instagram manuell einfügen', self::TEXT_DOMAIN); ?></strong><br>
-                    <?php echo esc_html__('Wenn WordPress einen Instagram-Link nicht einbetten kann, nutze einen Shortcode-Block mit:', self::TEXT_DOMAIN); ?>
-                    <code>[n24_instagram url="https://www.instagram.com/p/BEITRAG/"]</code>
-                </p>
-            </div>
-            <table class="form-table" role="presentation">
-                <?php
-                $this->render_checkbox_row('content_blocker_enabled', __('Content-Blocker aktivieren', self::TEXT_DOMAIN), $options);
-                $this->render_textarea_row('content_blocker_text', __('Platzhalter-Text', self::TEXT_DOMAIN), $options);
-                $this->render_textarea_row('content_blocker_button', __('Button-Text einmalig laden', self::TEXT_DOMAIN), $options);
-                $this->render_textarea_row('content_blocker_always_button', __('Button-Text immer laden', self::TEXT_DOMAIN), $options);
-                $this->render_textarea_row('content_blocker_missing_service_text', __('Hinweis, wenn kein passender Dienst aktiv ist', self::TEXT_DOMAIN), $options);
-                ?>
-            </table>
-
-            <h3><?php echo esc_html__('Farben im Inhalts-Platzhalter', self::TEXT_DOMAIN); ?></h3>
-            <table class="form-table" role="presentation">
-                <?php
-                $this->render_color_row('content_blocker_link_color', __('Link Nutzungsbedingungen', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_link_hover_color', __('Link Nutzungsbedingungen Hover', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_primary_button_background', __('Button Inhalt laden Hintergrund', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_primary_button_text', __('Button Inhalt laden Text', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_primary_button_hover_background', __('Button Inhalt laden Hover Hintergrund', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_primary_button_hover_text', __('Button Inhalt laden Hover Text', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_secondary_button_background', __('Button Immer laden Hintergrund', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_secondary_button_text', __('Button Immer laden Text', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_secondary_button_hover_background', __('Button Immer laden Hover Hintergrund', self::TEXT_DOMAIN), $options);
-                $this->render_color_row('content_blocker_secondary_button_hover_text', __('Button Immer laden Hover Text', self::TEXT_DOMAIN), $options);
-                ?>
-            </table>
-
-            <h3><?php echo esc_html__('Automatisch erkannte Inhalte', self::TEXT_DOMAIN); ?></h3>
-            <table class="widefat striped n24cm-content-blocker-table">
-                <thead>
-                    <tr>
-                        <th><?php echo esc_html__('Blocker', self::TEXT_DOMAIN); ?></th>
-                        <th><?php echo esc_html__('Verknüpfter Dienst', self::TEXT_DOMAIN); ?></th>
-                        <th><?php echo esc_html__('Erkannte Quellen', self::TEXT_DOMAIN); ?></th>
-                        <th><?php echo esc_html__('Aktiv', self::TEXT_DOMAIN); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($blockers as $blocker) : ?>
-                        <tr>
-                            <td><strong><?php echo esc_html($blocker['label']); ?></strong></td>
-                            <td><?php echo esc_html($blocker['service_name']); ?></td>
-                            <td><code><?php echo esc_html(implode(', ', $blocker['hosts'])); ?></code></td>
-                            <td>
-                                <label>
-                                    <input type="checkbox" name="<?php echo esc_attr(self::OPTION_NAME); ?>[<?php echo esc_attr($blocker['option_key']); ?>]" value="1" <?php checked($options[$blocker['option_key']] ?? '0', '1'); ?>>
-                                    <?php echo esc_html__('Blockieren', self::TEXT_DOMAIN); ?>
-                                </label>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-
-            <p class="description"><?php echo esc_html__('Wichtig: Der verknüpfte Dienst sollte unter Marketing angelegt und aktiviert sein, damit Besucher den Inhalt gezielt freischalten können.', self::TEXT_DOMAIN); ?></p>
-            <?php $this->render_content_blocker_embed_image_settings($options); ?>
         </div>
         <?php
     }
