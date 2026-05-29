@@ -2,7 +2,7 @@
 /**
  * Plugin Name: N24 Consent Manager
  * Description: DSGVO Consent-Banner mit einstellbaren Farben, Icon, Texten und Cookie-Einstellungen.
- * Version: 1.8.43
+ * Version: 1.8.44
  * Author: Nerdies24
  * Text Domain: n24-consent-manager
  * Domain Path: /languages
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 
 final class N24_Consent_Manager
 {
-    private const VERSION = '1.8.43';
+    private const VERSION = '1.8.44';
     private const TEXT_DOMAIN = 'n24-consent-manager';
     private const OPTION_NAME = 'n24_consent_manager_options';
     private const LOG_TABLE_VERSION = '1.0';
@@ -588,22 +588,6 @@ html.consent-pending #consent-banner * {
         ];
     }
 
-    private function has_active_consent_plugin_conflict(): bool
-    {
-        $active_plugins = (array) get_option('active_plugins', []);
-        $known_conflicts = [
-            'complianz-gdpr/complianz-gpdr.php',
-            'complianz-gdpr/complianz-gdpr.php',
-            'cookie-law-info/cookie-law-info.php',
-            'cookiebot/cookiebot.php',
-            'usercentrics/usercentrics.php',
-            'real-cookie-banner-pro/index.php',
-            'real-cookie-banner/index.php',
-        ];
-
-        return (bool) array_intersect($known_conflicts, $active_plugins);
-    }
-
     private function normalize_service_categories(array $options): array
     {
         $external_media_services = $options['external_media_services'] ?? [];
@@ -642,11 +626,6 @@ html.consent-pending #consent-banner * {
         ?>
         <div class="wrap">
             <h1><?php echo esc_html__('N24 Consent Manager', self::TEXT_DOMAIN); ?></h1>
-            <?php if ($this->has_active_consent_plugin_conflict()) : ?>
-                <div class="notice notice-warning">
-                    <p><strong><?php echo esc_html__('Hinweis:', self::TEXT_DOMAIN); ?></strong> <?php echo esc_html__('Es ist mindestens ein weiteres Consent-Plugin aktiv. Mehrere Consent-Manager können sich gegenseitig beeinflussen und externe Dienste trotz korrekter Einstellungen laden oder doppelt blockieren. Für einen verlässlichen Test sollte nur ein Consent-Manager aktiv sein.', self::TEXT_DOMAIN); ?></p>
-                </div>
-            <?php endif; ?>
             <form method="post" action="options.php">
                 <?php settings_fields('n24_consent_manager'); ?>
                 <div class="n24cm-deleted-preset-keys">
