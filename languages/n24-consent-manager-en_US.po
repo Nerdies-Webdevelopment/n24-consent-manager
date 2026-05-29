@@ -1,0 +1,1171 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: N24 Consent Manager 1.8.26\n"
+"Report-Msgid-Bugs-To: https://nerdies24.de\n"
+"POT-Creation-Date: 2026-05-25 00:00+0000\n"
+"PO-Revision-Date: 2026-05-25 00:00+0000\n"
+"Last-Translator: Nerdies24 <info@nerdies24.de>\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: n24-consent-manager\n"
+
+msgid "N24 Consent Manager"
+msgstr "N24 Consent Manager"
+
+msgid "Aktive Dienste"
+msgstr "Active services"
+
+msgid "aktiv"
+msgstr "active"
+
+msgid "Keine aktiven Dienste"
+msgstr "No active services"
+
+msgid "DSGVO Consent-Banner mit einstellbaren Farben, Icon, Texten und Cookie-Einstellungen."
+msgstr "GDPR consent banner with configurable colors, icon, texts, and cookie settings."
+
+msgid "Grundeinstellungen"
+msgstr "Basic settings"
+
+msgid "URL Datenschutzerklärung"
+msgstr "Privacy policy URL"
+
+msgid "URL Cookierichtlinie"
+msgstr "Cookie policy URL"
+
+msgid "URL Impressum"
+msgstr "Legal notice URL"
+
+msgid "Anbietername"
+msgstr "Provider name"
+
+msgid "Anbieteradresse"
+msgstr "Provider address"
+
+msgid "Storage-/Cookie-Name"
+msgstr "Storage/cookie name"
+
+msgid "Farben"
+msgstr "Colors"
+
+msgid "Statistik-Dienst"
+msgstr "Statistics service"
+
+msgid "Marketing-Dienst"
+msgstr "Marketing service"
+
+msgid "Hier kannst du einen optionalen Dienst für diese Consent-Kategorie pflegen. Sobald der Dienst aktiviert ist, erscheint die Kategorie im Banner und in den Details."
+msgstr "Here you can maintain an optional service for this consent category. As soon as the service is enabled, the category appears in the banner and in the details."
+
+msgid "Hier kannst du optionale Dienste für diese Consent-Kategorie pflegen. Aktivierte Dienste erscheinen im Banner und in den Cookie-Details."
+msgstr "Here you can maintain optional services for this consent category. Enabled services appear in the banner and cookie details."
+
+msgid "Dienst hinzufügen"
+msgstr "Add service"
+
+msgid "Dienste"
+msgstr "Services"
+
+msgid "Neuer Dienst"
+msgstr "New service"
+
+msgid "Dienst aktiv"
+msgstr "Service active"
+
+msgid "Dienst entfernen"
+msgstr "Remove service"
+
+msgid "Aktivieren"
+msgstr "Enable"
+
+msgid "Dienstname"
+msgstr "Service name"
+
+msgid "Dienst-/Tracking-ID"
+msgstr "Service/tracking ID"
+
+msgid "Einbettungs-Code / Script"
+msgstr "Embed code / script"
+
+msgid "Dieser Code wird im Frontend erst geladen, wenn der Dienst erlaubt wurde. Für Google Analytics 4 reicht alternativ die Measurement-ID, z. B. G-XXXXXXXXXX."
+msgstr "This code is only loaded in the frontend after the service has been allowed. For Google Analytics 4, the Measurement ID is enough, e.g. G-XXXXXXXXXX."
+
+msgid "Zweck/Beschreibung"
+msgstr "Purpose/description"
+
+msgid "Cookie Name"
+msgstr "Cookie name"
+
+msgid "Cookie Laufzeit"
+msgstr "Cookie duration"
+
+msgid "Cookie Typ"
+msgstr "Cookie type"
+
+msgid "Cookie Zweck"
+msgstr "Cookie purpose"
+
+msgid "HTTP Cookie"
+msgstr "HTTP cookie"
+
+msgid "Cookies"
+msgstr "Cookies"
+
+msgid "Cookie hinzufügen"
+msgstr "Add cookie"
+
+msgid "Cookie entfernen"
+msgstr "Remove cookie"
+
+msgid "1 Tag"
+msgstr "1 day"
+
+msgid "2 Jahre"
+msgstr "2 years"
+
+msgid "3 Monate"
+msgstr "3 months"
+
+msgid "13 Monate"
+msgstr "13 months"
+
+msgid "30 Minuten"
+msgstr "30 minutes"
+
+msgid "30 Tage"
+msgstr "30 days"
+
+msgid "90 Tage"
+msgstr "90 days"
+
+msgid "6 Monate"
+msgstr "6 months"
+
+msgid "Session"
+msgstr "Session"
+
+msgid "Analyse der Website-Nutzung, Reichweitenmessung und Verbesserung des Online-Angebots."
+msgstr "Analysis of website usage, reach measurement, and improvement of the online offering."
+
+msgid "Unterscheidet Besucher für statistische Auswertungen."
+msgstr "Distinguishes visitors for statistical analysis."
+
+msgid "Speichert Sitzungs- und Kampagneninformationen für Google Analytics 4."
+msgstr "Stores session and campaign information for Google Analytics 4."
+
+msgid "Websitebetreiber / Matomo"
+msgstr "Website operator / Matomo"
+
+msgid "Adresse des Websitebetreibers eintragen"
+msgstr "Enter the website operator address"
+
+msgid "Datenschutzfreundliche Analyse der Website-Nutzung und Besucherstatistiken."
+msgstr "Privacy-friendly analysis of website usage and visitor statistics."
+
+msgid "Erkennt wiederkehrende Besucher für statistische Auswertungen."
+msgstr "Recognizes returning visitors for statistical analysis."
+
+msgid "Speichert Daten zur aktuellen Besuchssitzung."
+msgstr "Stores data for the current visit session."
+
+msgid "Analyse von Nutzerinteraktionen zur Verbesserung von Bedienbarkeit und Inhalten."
+msgstr "Analysis of user interactions to improve usability and content."
+
+msgid "Speichert eine eindeutige Nutzerkennung für Clarity-Analysen."
+msgstr "Stores a unique user identifier for Clarity analytics."
+
+msgid "Verknüpft mehrere Seitenaufrufe zu einer Sitzung."
+msgstr "Links multiple page views to one session."
+
+msgid "Messung von Werbekampagnen, Conversions und Remarketing-Zielgruppen."
+msgstr "Measurement of advertising campaigns, conversions, and remarketing audiences."
+
+msgid "Speichert Conversion-Informationen für Google Ads."
+msgstr "Stores conversion information for Google Ads."
+
+msgid "Wird für personalisierte Werbung und Kampagnenmessung genutzt."
+msgstr "Used for personalized advertising and campaign measurement."
+
+msgid "Messung und Optimierung von Werbeanzeigen auf Meta-Plattformen."
+msgstr "Measurement and optimization of ads on Meta platforms."
+
+msgid "Identifiziert Browser für Werbe- und Conversion-Messung."
+msgstr "Identifies browsers for advertising and conversion measurement."
+
+msgid "Unterstützt die Auslieferung und Messung relevanter Werbung."
+msgstr "Supports delivery and measurement of relevant advertising."
+
+msgid "Conversion-Messung, Kampagnenanalyse und Zielgruppenbildung für LinkedIn Ads."
+msgstr "Conversion measurement, campaign analysis, and audience creation for LinkedIn Ads."
+
+msgid "Speichert eine Klickkennung für Conversion-Zuordnung."
+msgstr "Stores a click identifier for conversion attribution."
+
+msgid "Browserkennung für LinkedIn-Dienste und Sicherheitsfunktionen."
+msgstr "Browser identifier for LinkedIn services and security features."
+
+msgid "Einbindung und Wiedergabe von YouTube-Videos auf der Website."
+msgstr "Embedding and playback of YouTube videos on the website."
+
+msgid "Speichert eine eindeutige Kennung zur Videowiedergabe und Missbrauchsprävention."
+msgstr "Stores a unique identifier for video playback and abuse prevention."
+
+msgid "Schätzt die Bandbreite und unterstützt die Darstellung eingebetteter Videos."
+msgstr "Estimates bandwidth and supports the display of embedded videos."
+
+msgid "Einbindung und Wiedergabe von Vimeo-Videos auf der Website."
+msgstr "Embedding and playback of Vimeo videos on the website."
+
+msgid "Speichert eine eindeutige Besucherkennung für eingebettete Vimeo-Videos."
+msgstr "Stores a unique visitor identifier for embedded Vimeo videos."
+
+msgid "Speichert Einstellungen des Vimeo-Players."
+msgstr "Stores Vimeo player settings."
+
+msgid "Einbindung interaktiver Karten und Standortfunktionen von Google Maps."
+msgstr "Embedding interactive maps and location features from Google Maps."
+
+msgid "Speichert Google-Einstellungen und unterstützt die Kartendarstellung."
+msgstr "Stores Google preferences and supports map display."
+
+msgid "Speichert Informationen zum Einwilligungsstatus für Google-Dienste."
+msgstr "Stores information about the consent status for Google services."
+
+msgid "Die Schriftart wird bewusst nicht gesetzt. Das Plugin erbt die Schrift des aktiven Themes."
+msgstr "The font family is intentionally not set. The plugin inherits the active theme font."
+
+msgid "Overlay"
+msgstr "Overlay"
+
+msgid "Modal-Hintergrund"
+msgstr "Modal background"
+
+msgid "Panel-/Listen-Hintergrund"
+msgstr "Panel/list background"
+
+msgid "Text primär"
+msgstr "Primary text"
+
+msgid "Text sekundär"
+msgstr "Secondary text"
+
+msgid "Text gedimmt"
+msgstr "Muted text"
+
+msgid "Akzent"
+msgstr "Accent"
+
+msgid "Akzent hell"
+msgstr "Light accent"
+
+msgid "Akzent dunkel"
+msgstr "Dark accent"
+
+msgid "Rahmen"
+msgstr "Border"
+
+msgid "Rahmen Hover"
+msgstr "Border hover"
+
+msgid "Primärbutton Text"
+msgstr "Primary button text"
+
+msgid "Floating-Button Hintergrund"
+msgstr "Floating button background"
+
+msgid "Floating-Button Hover"
+msgstr "Floating button hover"
+
+msgid "Box-Icon Farbe"
+msgstr "Box icon color"
+
+msgid "Frontend-Icon Farbe"
+msgstr "Frontend icon color"
+
+msgid "Icon"
+msgstr "Icon"
+
+msgid "Icon SVG"
+msgstr "Icon SVG"
+
+msgid "Box-Icon SVG"
+msgstr "Box icon SVG"
+
+msgid "Frontend-Icon SVG"
+msgstr "Frontend icon SVG"
+
+msgid "Erlaubt sind einfache SVG-Elemente wie svg, path, rect, circle, line und polyline. Farben können mit <code>var(--ccm-color-accent)</code> arbeiten."
+msgstr "Simple SVG elements such as svg, path, rect, circle, line, and polyline are allowed. Colors can use <code>var(--ccm-color-accent)</code>."
+
+msgid "Erlaubt sind einfache SVG-Elemente wie svg, path, rect, circle, line und polyline. Für frei einstellbare Farben sollte das SVG <code>currentColor</code> für fill oder stroke verwenden."
+msgstr "Simple SVG elements such as svg, path, rect, circle, line, and polyline are allowed. For freely configurable colors, the SVG should use <code>currentColor</code> for fill or stroke."
+
+msgid "Dieses Icon wird als Floating-Button im Frontend angezeigt. Für frei einstellbare Farben sollte das SVG <code>currentColor</code> für fill oder stroke verwenden."
+msgstr "This icon is shown as the floating button in the frontend. For freely configurable colors, the SVG should use <code>currentColor</code> for fill or stroke."
+
+msgid "Texte"
+msgstr "Texts"
+
+msgid "Cookie-Box Vorschau"
+msgstr "Cookie box preview"
+
+msgid "Vorschau"
+msgstr "Preview"
+
+msgid "Dialog-Titel"
+msgstr "Dialog title"
+
+msgid "Tab Übersicht"
+msgstr "Overview tab"
+
+msgid "Tab Details"
+msgstr "Details tab"
+
+msgid "Tab Historie"
+msgstr "History tab"
+
+msgid "Einleitung"
+msgstr "Introduction"
+
+msgid "Kategorie Notwendig"
+msgstr "Necessary category"
+
+msgid "Info Notwendig"
+msgstr "Necessary info"
+
+msgid "Kategorie Statistik"
+msgstr "Statistics category"
+
+msgid "Statistik inaktiv"
+msgstr "Statistics inactive"
+
+msgid "Info Statistik"
+msgstr "Statistics info"
+
+msgid "Info Statistik inaktiv"
+msgstr "Statistics inactive info"
+
+msgid "Kategorie Marketing"
+msgstr "Marketing category"
+
+msgid "Marketing inaktiv"
+msgstr "Marketing inactive"
+
+msgid "Info Marketing"
+msgstr "Marketing info"
+
+msgid "Info Marketing inaktiv"
+msgstr "Marketing inactive info"
+
+msgid "Kategorie Externe Medien"
+msgstr "External media category"
+
+msgid "Externe Medien inaktiv"
+msgstr "External media inactive"
+
+msgid "Info Externe Medien"
+msgstr "External media info"
+
+msgid "Info Externe Medien inaktiv"
+msgstr "External media inactive info"
+
+msgid "Info Standard"
+msgstr "Default info"
+
+msgid "Details-Einleitung"
+msgstr "Details introduction"
+
+msgid "Historie-Einleitung"
+msgstr "History introduction"
+
+msgid "Consent-ID Label"
+msgstr "Consent ID label"
+
+msgid "Historie leer"
+msgstr "Empty history"
+
+msgid "Button ablehnen"
+msgstr "Reject button"
+
+msgid "Button akzeptieren"
+msgstr "Accept button"
+
+msgid "Button speichern"
+msgstr "Save button"
+
+msgid "Button Auswahl anpassen"
+msgstr "Customize selection button"
+
+msgid "Link Cookie-Einstellungen"
+msgstr "Cookie settings link"
+
+msgid "Floating-Button ARIA-Label"
+msgstr "Floating button ARIA label"
+
+msgid "Service immer aktiv"
+msgstr "Service always active"
+
+msgid "Service Beschreibung Label"
+msgstr "Service description label"
+
+msgid "Service Provider Label"
+msgstr "Service provider label"
+
+msgid "Service Cookies Label"
+msgstr "Service cookies label"
+
+msgid "Service Datenschutz Label"
+msgstr "Service privacy label"
+
+msgid "Service Cookierichtlinie Label"
+msgstr "Service cookie policy label"
+
+msgid "Service Anzahl Singular"
+msgstr "Service count singular"
+
+msgid "Service Anzahl Plural"
+msgstr "Service count plural"
+
+msgid "Cookie Name Label"
+msgstr "Cookie name label"
+
+msgid "Cookie Laufzeit Label"
+msgstr "Cookie duration label"
+
+msgid "Cookie Zweck Label"
+msgstr "Cookie purpose label"
+
+msgid "Historie Datum Label"
+msgstr "History date label"
+
+msgid "Historie Status Label"
+msgstr "History status label"
+
+msgid "Notwendiger Service Name"
+msgstr "Necessary service name"
+
+msgid "Notwendiger Service Zweck"
+msgstr "Necessary service purpose"
+
+msgid "Notwendiger Cookie Laufzeit"
+msgstr "Necessary cookie duration"
+
+msgid "Notwendiger Cookie Typ"
+msgstr "Necessary cookie type"
+
+msgid "Notwendiger Cookie Zweck"
+msgstr "Necessary cookie purpose"
+
+msgid "Link für Footer oder Seiten: <code>[n24_consent_settings]</code>"
+msgstr "Link for footer or pages: <code>[n24_consent_settings]</code>"
+
+msgid "Datenschutz auf dieser Website"
+msgstr "Privacy on this website"
+
+msgid "Datenschutzeinstellungen"
+msgstr "Privacy settings"
+
+msgid "Übersicht"
+msgstr "Overview"
+
+msgid "Details & Cookies"
+msgstr "Details & Cookies"
+
+msgid "Historie"
+msgstr "History"
+
+msgid "Es werden Cookies genutzt. Notwendige Cookies sind für die Website-Funktion erforderlich. Andere Cookies sind optional und werden nur mit Ihrer Einwilligung gesetzt."
+msgstr "Cookies are used. Necessary cookies are required for website functionality. Other cookies are optional and are only set with your consent."
+
+msgid "Notwendig"
+msgstr "Necessary"
+
+msgid "Essenziell für die Grundfunktionen der Website."
+msgstr "Essential for the basic functions of the website."
+
+msgid "Statistik"
+msgstr "Statistics"
+
+msgid "Statistik (derzeit nicht aktiv)"
+msgstr "Statistics (currently inactive)"
+
+msgid "Statistische Auswertung der Website-Nutzung."
+msgstr "Statistical analysis of website usage."
+
+msgid "Derzeit sind keine Statistik-Dienste aktiv."
+msgstr "No statistics services are currently active."
+
+msgid "Marketing"
+msgstr "Marketing"
+
+msgid "Marketing (derzeit nicht aktiv)"
+msgstr "Marketing (currently inactive)"
+
+msgid "Personalisierte Inhalte und Werbung."
+msgstr "Personalized content and advertising."
+
+msgid "Derzeit sind keine Marketing-Dienste aktiv."
+msgstr "No marketing services are currently active."
+
+msgid "Sie können auswählen, welche Kategorien Sie erlauben. Ihre Entscheidung können Sie jederzeit über Cookie-Einstellungen ändern."
+msgstr "You can choose which categories you allow. You can change your decision at any time via cookie settings."
+
+msgid "Hier finden Sie den Verlauf Ihrer Einwilligungen."
+msgstr "Here you can find the history of your consents."
+
+msgid "Ihre Consent-ID:"
+msgstr "Your consent ID:"
+
+msgid "Noch keine Einträge vorhanden."
+msgstr "No entries yet."
+
+msgid "Alle ablehnen"
+msgstr "Reject all"
+
+msgid "Alle akzeptieren"
+msgstr "Accept all"
+
+msgid "Auswahl speichern"
+msgstr "Save selection"
+
+msgid "Auswahl anpassen"
+msgstr "Customize selection"
+
+msgid "Cookie-Einstellungen"
+msgstr "Cookie settings"
+
+msgid "Datenschutz-Einstellungen öffnen"
+msgstr "Open privacy settings"
+
+msgid "Immer an"
+msgstr "Always on"
+
+msgid "Beschreibung"
+msgstr "Description"
+
+msgid "Provider"
+msgstr "Provider"
+
+msgid "Cookie(s)"
+msgstr "Cookie(s)"
+
+msgid "Datenschutzerklärung"
+msgstr "Privacy policy"
+
+msgid "Cookierichtlinie"
+msgstr "Cookie policy"
+
+msgid "Service"
+msgstr "Service"
+
+msgid "Services"
+msgstr "Services"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Laufzeit"
+msgstr "Duration"
+
+msgid "Zweck"
+msgstr "Purpose"
+
+msgid "Datum"
+msgstr "Date"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Consent Manager"
+msgstr "Consent Manager"
+
+msgid "Speichert den Zustimmungsstatus des Benutzers für Cookie-Einstellungen."
+msgstr "Stores the user consent status for cookie settings."
+
+msgid "1 Jahr"
+msgstr "1 year"
+
+msgid "Local Storage"
+msgstr "Local storage"
+
+msgid "Technisch notwendig"
+msgstr "Technically necessary"
+
+msgid "Vorlagen"
+msgstr "Templates"
+
+msgid "Vorbelegte Dienste"
+msgstr "Preconfigured services"
+
+msgid "Bereits hinzugefügt"
+msgstr "Already added"
+
+msgid "Diese Vorlagen werden nicht automatisch gespeichert. Mit Hinzufügen wird ein inaktiver Dienst in der passenden Kategorie angelegt, den du danach prüfen und aktivieren kannst."
+msgstr "These templates are not saved automatically. Add creates an inactive service in the matching category that you can review and activate afterwards."
+
+msgid "Wird unter %s hinzugefügt"
+msgstr "Will be added under %s"
+
+msgid "Hinzufügen"
+msgstr "Add"
+
+msgid "Analytics"
+msgstr "Analytics"
+
+msgid "Verwaltung und Ausspielung von Tracking- und Marketing-Tags."
+msgstr "Management and delivery of tracking and marketing tags."
+
+msgid "Abhängig von eingebundenen Tags"
+msgstr "Depends on embedded tags"
+
+msgid "Abhängig vom Dienst"
+msgstr "Depends on the service"
+
+msgid "Script/Tag Manager"
+msgstr "Script/tag manager"
+
+msgid "Der Tag Manager selbst setzt in der Regel keine Cookies, kann aber andere Dienste auslösen."
+msgstr "The tag manager itself usually does not set cookies, but can trigger other services."
+
+msgid "Der Google Tag Manager selbst setzt in der Regel keine Cookies, kann aber andere Dienste auslösen."
+msgstr "Google Tag Manager itself usually does not set cookies, but it can trigger other services."
+
+msgid "Analyse von Nutzerverhalten, Heatmaps und Feedback zur Verbesserung der Website."
+msgstr "Analysis of user behavior, heatmaps, and feedback to improve the website."
+
+msgid "Speichert eine Hotjar-Benutzerkennung für wiederkehrende Besuche."
+msgstr "Stores a Hotjar user identifier for returning visits."
+
+msgid "Speichert Daten zur aktuellen Hotjar-Sitzung."
+msgstr "Stores data for the current Hotjar session."
+
+msgid "Cookielose, aggregierte Reichweitenmessung und Website-Statistik."
+msgstr "Cookieless, aggregated reach measurement and website statistics."
+
+msgid "Keine Cookies"
+msgstr "No cookies"
+
+msgid "Keine"
+msgstr "None"
+
+msgid "Cookieless Analytics"
+msgstr "Cookieless analytics"
+
+msgid "Plausible arbeitet ohne Cookies und ohne personenbezogene Besucherprofile."
+msgstr "Plausible works without cookies and without personal visitor profiles."
+
+msgid "Datenschutzfreundliche und aggregierte Website-Statistik ohne klassisches Tracking."
+msgstr "Privacy-friendly and aggregated website statistics without classic tracking."
+
+msgid "Fathom nutzt cookielose Messung für aggregierte Website-Statistiken."
+msgstr "Fathom uses cookieless measurement for aggregated website statistics."
+
+msgid "Conversion-Messung, Zielgruppenbildung und Optimierung von TikTok-Werbung."
+msgstr "Conversion measurement, audience creation, and optimization of TikTok advertising."
+
+msgid "Misst und verbessert die Performance von TikTok-Werbekampagnen."
+msgstr "Measures and improves the performance of TikTok ad campaigns."
+
+msgid "Conversion-Messung und Zielgruppenbildung für Pinterest-Werbung."
+msgstr "Conversion measurement and audience creation for Pinterest advertising."
+
+msgid "Speichert eine Nutzerkennung für Pinterest-Kampagnenmessung."
+msgstr "Stores a user identifier for Pinterest campaign measurement."
+
+msgid "Conversion-Messung und Remarketing für Anzeigen auf X."
+msgstr "Conversion measurement and remarketing for ads on X."
+
+msgid "Unterstützt Werbemessung und Personalisierung auf X."
+msgstr "Supports ad measurement and personalization on X."
+
+msgid "Externe Medien"
+msgstr "External media"
+
+msgid "Externe Medien (derzeit nicht aktiv)"
+msgstr "External media (currently inactive)"
+
+msgid "Inhalte von Videoplattformen, Karten und Social-Media-Plattformen."
+msgstr "Content from video platforms, maps, and social media platforms."
+
+msgid "Derzeit sind keine externen Medien aktiv."
+msgstr "No external media services are currently active."
+
+msgid "Einbindung externer Medien und Social-Media-Inhalte."
+msgstr "Embedding external media and social media content."
+
+msgid "Einbindung und Wiedergabe von Spotify-Audioinhalten auf der Website."
+msgstr "Embedding and playback of Spotify audio content on the website."
+
+msgid "Unterstützt die Wiedergabe und Personalisierung eingebetteter Spotify-Inhalte."
+msgstr "Supports playback and personalization of embedded Spotify content."
+
+msgid "1 Tag"
+msgstr "1 day"
+
+msgid "Speichert Informationen zum Aufruf eingebetteter Spotify-Inhalte."
+msgstr "Stores information about loading embedded Spotify content."
+
+msgid "Einbindung und Wiedergabe von SoundCloud-Audioinhalten auf der Website."
+msgstr "Embedding and playback of SoundCloud audio content on the website."
+
+msgid "10 Jahre"
+msgstr "10 years"
+
+msgid "Speichert eine anonyme Kennung für SoundCloud-Player und Nutzungsmessung."
+msgstr "Stores an anonymous identifier for SoundCloud players and usage measurement."
+
+msgid "Einbindung und Darstellung von Instagram-Beiträgen auf der Website."
+msgstr "Embedding and display of Instagram posts on the website."
+
+msgid "Einbindung und Darstellung von Facebook-Inhalten auf der Website."
+msgstr "Embedding and display of Facebook content on the website."
+
+msgid "Abhängig vom eingebetteten Facebook-Inhalt"
+msgstr "Depends on the embedded Facebook content"
+
+msgid "HTTP Cookie / Local Storage"
+msgstr "HTTP cookie / local storage"
+
+msgid "Facebook kann Cookies und ähnliche Technologien für eingebettete Inhalte, Sicherheit und Personalisierung nutzen."
+msgstr "Facebook may use cookies and similar technologies for embedded content, security, and personalization."
+
+msgid "Einbindung interaktiver Karten von OpenStreetMap."
+msgstr "Embedding interactive maps from OpenStreetMap."
+
+msgid "Abhängig vom Kartenanbieter"
+msgstr "Depends on the map provider"
+
+msgid "HTTP Cookie / Anfrage-Daten"
+msgstr "HTTP cookie / request data"
+
+msgid "Wird für die Bereitstellung und Auslieferung interaktiver Karteninhalte genutzt."
+msgstr "Used to provide and deliver interactive map content."
+
+msgid "Einbindung und Darstellung von X-Beiträgen auf der Website."
+msgstr "Embedding and display of X posts on the website."
+
+msgid "Abhängig vom eingebetteten X-Inhalt"
+msgstr "Depends on the embedded X content"
+
+msgid "X kann Cookies und ähnliche Technologien für eingebettete Beiträge, Sicherheit und Personalisierung nutzen."
+msgstr "X may use cookies and similar technologies for embedded posts, security, and personalization."
+
+msgid "URL Cookierichtlinie / Nutzungsbedingungen"
+msgstr "Cookie policy / terms URL"
+
+msgid "Cookie Box Layout"
+msgstr "Cookie box layout"
+
+msgid "Content-Blocker für externe Medien aktivieren"
+msgstr "Enable content blockers for external media"
+
+msgid "Die dienstbezogenen Platzhalter-Einstellungen findest du am Ende des jeweiligen externen Mediendienstes."
+msgstr "You can find the service-specific placeholder settings at the end of each external media service."
+
+msgid "Instagram manuell einfügen:"
+msgstr "Insert Instagram manually:"
+
+msgid "Content-Blocker für diesen Dienst"
+msgstr "Content blocker for this service"
+
+msgid "Diese Einstellungen gelten nur für diesen externen Mediendienst. Leere Felder nutzen die bisherigen Standardwerte als Fallback."
+msgstr "These settings apply only to this external media service. Empty fields use the existing default values as fallback."
+
+msgid "Einbettungen dieses Dienstes blockieren"
+msgstr "Block embeds from this service"
+
+msgid "Farben im Platzhalter"
+msgstr "Placeholder colors"
+
+msgid "Platzhalterbilder dieses Dienstes"
+msgstr "Placeholder images for this service"
+
+msgid "Hier erscheinen erkannte Einbettungen dieses Dienstes aus Seiten und Beiträgen."
+msgstr "Detected embeds from this service in pages and posts appear here."
+
+msgid "diesen Dienst"
+msgstr "this service"
+
+msgid "Bitte manuell eintragen: Verwende die Angaben aus deinem Vertrag, deinem Anbieterkonto oder der offiziellen Datenschutzerklärung des Dienstes."
+msgstr "Please enter manually: use the details from your contract, provider account, or the service's official privacy policy."
+
+msgid "Bei selbst gehostetem Matomo bist in der Regel du bzw. dein Unternehmen der Anbieter. Bei Matomo Cloud trägst du die Angaben von Matomo/InnoCraft ein."
+msgstr "For self-hosted Matomo, you or your company are usually the provider. For Matomo Cloud, enter the Matomo/InnoCraft details."
+
+msgid "Bei selbst gehostetem Matomo deine Anbieteradresse eintragen. Bei Matomo Cloud die Anbieteradresse aus deinem Matomo-Vertrag prüfen."
+msgstr "For self-hosted Matomo, enter your provider address. For Matomo Cloud, check the provider address from your Matomo contract."
+
+msgid "Trage die URL deiner eigenen Datenschutzerklärung ein, in der du Matomo erklärst. Bei Matomo Cloud zusätzlich die Matomo-Hinweise prüfen."
+msgstr "Enter the URL of your own privacy policy where you explain Matomo. For Matomo Cloud, also check Matomo's notices."
+
+msgid "Trage deine Cookie-Richtlinie oder den Abschnitt deiner Datenschutzerklärung ein, in dem die Matomo-Cookies beschrieben sind."
+msgstr "Enter your cookie policy or the section of your privacy policy that describes the Matomo cookies."
+
+msgid "Trage hier die GA4 Measurement-ID ein, z. B. G-XXXXXXXXXX. Alternativ kannst du unten den vollständigen gtag.js-Code einfügen."
+msgstr "Enter the GA4 Measurement ID here, e.g. G-XXXXXXXXXX. Alternatively, paste the complete gtag.js code below."
+
+msgid "Matomo benötigt normalerweise die Matomo-URL und Site-ID im vollständigen Tracking-Code. Eine einzelne ID reicht hier meist nicht aus."
+msgstr "Matomo normally needs the Matomo URL and site ID in the full tracking code. A single ID is usually not enough here."
+
+msgid "Trage hier nur dann eine ID ein, wenn du einen einfachen Google-Ads-Basis-Tag laden willst, z. B. AW-XXXXXXXXXX. Für Conversion-Labels nutze den vollständigen Code unten."
+msgstr "Only enter an ID here if you want to load a simple Google Ads base tag, e.g. AW-XXXXXXXXXX. Use the full code below for conversion labels."
+
+msgid "Trage hier deine Meta-Pixel-ID ein oder füge unten den vollständigen Meta-Pixel-Basiscode aus dem Events Manager ein."
+msgstr "Enter your Meta Pixel ID here or paste the full Meta Pixel base code from Events Manager below."
+
+msgid "Trage hier deine LinkedIn Partner-ID ein oder füge unten den vollständigen Insight-Tag-Code ein."
+msgstr "Enter your LinkedIn partner ID here or paste the full Insight Tag code below."
+
+msgid "Trage hier die Container-ID ein, z. B. GTM-XXXXXXX. Alternativ kannst du unten den vollständigen Container-Code einfügen."
+msgstr "Enter the container ID here, e.g. GTM-XXXXXXX. Alternatively, paste the complete container code below."
+
+msgid "Trage hier nur eine ID ein, wenn dein Dienst-Code das unterstützt. Sicherer ist der vollständige Pixel-Code aus dem TikTok Events Manager unten."
+msgstr "Only enter an ID here if your service code supports it. The full pixel code from TikTok Events Manager below is safer."
+
+msgid "Trage hier nur eine ID ein, wenn dein Dienst-Code das unterstützt. Sicherer ist der vollständige Pinterest-Tag-Code aus Pinterest Ads unten."
+msgstr "Only enter an ID here if your service code supports it. The full Pinterest tag code from Pinterest Ads below is safer."
+
+msgid "Trage hier nur eine ID ein, wenn dein Dienst-Code das unterstützt. Sicherer ist der vollständige X Website Tag unten."
+msgstr "Only enter an ID here if your service code supports it. The full X Website Tag below is safer."
+
+msgid "Für %s ist dieses Feld meistens nicht nötig. Normale eingebettete Inhalte werden über den Content-Blocker im Beitrag erkannt. Nutze das Feld nur für eine anbieterspezifische ID."
+msgstr "For %s, this field is usually not needed. Normal embedded content is detected through the content blocker in the post. Use this field only for a provider-specific ID."
+
+msgid "Falls %s eine Projekt-, Tracking- oder Container-ID bereitstellt, trägst du sie hier ein. Wenn der Anbieter nur einen kompletten Code ausgibt, nutze das Script-Feld darunter."
+msgstr "If %s provides a project, tracking, or container ID, enter it here. If the provider only gives you a full code snippet, use the script field below."
+
+msgid "Dieser Code wird erst nach Statistik-Zustimmung geladen. Für Google Analytics 4 reicht alternativ die Measurement-ID im Feld darüber, z. B. G-XXXXXXXXXX."
+msgstr "This code is loaded only after statistics consent. For Google Analytics 4, the Measurement ID in the field above is enough, e.g. G-XXXXXXXXXX."
+
+msgid "Füge hier den vollständigen Matomo-Tracking-Code aus Matomo > Verwaltung > Tracking-Code ein. Das Plugin erzeugt Matomo-Code nicht automatisch, weil Matomo-URL und Site-ID projektspezifisch sind."
+msgstr "Paste the full Matomo tracking code from Matomo > Administration > Tracking Code here. The plugin does not generate Matomo code automatically because the Matomo URL and site ID are project-specific."
+
+msgid "Füge hier den vollständigen Google-Ads-Conversion- oder Remarketing-Code ein, wenn du mehr als die einfache AW-ID benötigst."
+msgstr "Paste the full Google Ads conversion or remarketing code here if you need more than the simple AW ID."
+
+msgid "Füge hier den vollständigen Meta-Pixel-Basiscode aus dem Events Manager ein, falls du nicht nur mit der Pixel-ID arbeiten möchtest."
+msgstr "Paste the full Meta Pixel base code from Events Manager here if you do not want to work with only the Pixel ID."
+
+msgid "Füge hier den vollständigen LinkedIn Insight Tag ein, falls du nicht nur mit der Partner-ID arbeiten möchtest."
+msgstr "Paste the full LinkedIn Insight Tag here if you do not want to work with only the partner ID."
+
+msgid "Für Google Tag Manager reicht alternativ die Container-ID, z. B. GTM-XXXXXXX. Der Code wird erst nach Zustimmung dieser Kategorie geladen."
+msgstr "For Google Tag Manager, the container ID is enough, e.g. GTM-XXXXXXX. The code is loaded only after consent for this category."
+
+msgid "Für sichtbare %s-Einbettungen nutze normalerweise den WordPress-Embed oder Shortcode im Beitrag. Dieses Feld ist nur für zusätzliche globale Scripte gedacht und wird erst nach Zustimmung geladen."
+msgstr "For visible %s embeds, normally use the WordPress embed or shortcode in the post. This field is only intended for additional global scripts and is loaded only after consent."
+
+msgid "Dieser Code wird im Frontend erst geladen, wenn der Dienst bzw. die passende Kategorie erlaubt wurde. Verwende hier den aktuellen Code aus dem Anbieter-Backend."
+msgstr "This code is loaded in the frontend only after the service or matching category has been allowed. Use the current code from the provider backend here."
+
+msgid "Unterstützt Sicherheitsfunktionen bei eingebetteten Instagram-Inhalten."
+msgstr "Supports security features for embedded Instagram content."
+
+msgid "Speichert eine Gerätekennung für Instagram-Dienste."
+msgstr "Stores a device identifier for Instagram services."
+
+msgid "Sicherheit"
+msgstr "Security"
+
+msgid "Schutz von Formularen vor Spam und automatisierten Zugriffen."
+msgstr "Protects forms against spam and automated access."
+
+msgid "Stellt den Bot-Schutz von Google reCAPTCHA bereit."
+msgstr "Provides bot protection through Google reCAPTCHA."
+
+msgid "Unterstützt die Erkennung legitimer Formularnutzung."
+msgstr "Supports detection of legitimate form usage."
+
+msgid "Datenschutzfreundliche Bot-Prüfung und Formularschutz."
+msgstr "Privacy-friendly bot checks and form protection."
+
+msgid "Bis zu 1 Jahr"
+msgstr "Up to 1 year"
+
+msgid "Speichert das Ergebnis einer Sicherheitsprüfung."
+msgstr "Stores the result of a security check."
+
+msgid "Bereitstellung, Absicherung und Beschleunigung der Website über Cloudflare."
+msgstr "Delivery, protection, and acceleration of the website through Cloudflare."
+
+msgid "Unterstützt Bot-Erkennung und Schutzfunktionen von Cloudflare."
+msgstr "Supports Cloudflare bot detection and protection features."
+
+msgid "Chat & CRM"
+msgstr "Chat & CRM"
+
+msgid "CRM, Kontaktformulare, Marketing-Automation und Website-Analyse."
+msgstr "CRM, contact forms, marketing automation, and website analytics."
+
+msgid "Speichert eine Besucherkennung für HubSpot-Formulare und Analyse."
+msgstr "Stores a visitor identifier for HubSpot forms and analytics."
+
+msgid "Live-Chat, Kundenkommunikation und Support-Funktionen."
+msgstr "Live chat, customer communication, and support features."
+
+msgid "1 Woche"
+msgstr "1 week"
+
+msgid "Speichert die aktuelle Intercom-Sitzung."
+msgstr "Stores the current Intercom session."
+
+msgid "Live-Chat und Support-Kommunikation auf der Website."
+msgstr "Live chat and support communication on the website."
+
+msgid "Speichert eine Besucherkennung für Zendesk-Chatfunktionen."
+msgstr "Stores a visitor identifier for Zendesk chat features."
+
+msgid "Speichert Informationen zur aktuellen Chat-Verbindung."
+msgstr "Stores information about the current chat connection."
+
+msgid "Zahlung"
+msgstr "Payment"
+
+msgid "Abwicklung von Zahlungen über PayPal."
+msgstr "Processing payments through PayPal."
+
+msgid "3 Jahre"
+msgstr "3 years"
+
+msgid "Unterstützt Sicherheit, Betrugsprävention und Zahlungsabwicklung."
+msgstr "Supports security, fraud prevention, and payment processing."
+
+msgid "Abwicklung von Kartenzahlungen und Zahlungsformularen über Stripe."
+msgstr "Processing card payments and payment forms through Stripe."
+
+msgid "Unterstützt Betrugsprävention und sichere Zahlungsabwicklung."
+msgstr "Supports fraud prevention and secure payment processing."
+
+msgid "Abwicklung von Zahlungen, Rechnungskauf und Ratenkauf über Klarna."
+msgstr "Processing payments, invoice purchases, and installment purchases through Klarna."
+
+msgid "Unterstützt Geräteerkennung und Zahlungsabwicklung über Klarna."
+msgstr "Supports device recognition and payment processing through Klarna."
+
+msgid "Fonts/Assets"
+msgstr "Fonts/assets"
+
+msgid "Externe Bereitstellung von Schriftarten über Google Fonts."
+msgstr "External delivery of fonts through Google Fonts."
+
+msgid "Externer Request"
+msgstr "External request"
+
+msgid "Beim Abruf externer Schriftdateien können technische Zugriffsdaten übertragen werden."
+msgstr "When external font files are requested, technical access data may be transferred."
+
+msgid "Externe Bereitstellung von Schriftarten über Adobe Fonts."
+msgstr "External delivery of fonts through Adobe Fonts."
+
+msgid "Content-Blocker"
+msgstr "Content blockers"
+
+msgid "Content-Blocker Titel"
+msgstr "Content blocker title"
+
+msgid "Content-Blocker Text"
+msgstr "Content blocker text"
+
+msgid "Content-Blocker Button"
+msgstr "Content blocker button"
+
+msgid "Content-Blocker Hinweis ohne Dienst"
+msgstr "Content blocker notice without service"
+
+msgid "Content-Blocker ersetzen externe Inhalte wie Videos, Karten oder Social-Media-Embeds durch einen Platzhalter. Der Originalinhalt wird erst geladen, wenn der passende Dienst erlaubt wurde."
+msgstr "Content blockers replace external content such as videos, maps, or social media embeds with a placeholder. The original content is loaded only after the matching service has been allowed."
+
+msgid "Instagram manuell einfügen"
+msgstr "Add Instagram manually"
+
+msgid "Wenn WordPress einen Instagram-Link nicht einbetten kann, nutze einen Shortcode-Block mit:"
+msgstr "If WordPress cannot embed an Instagram link, use a Shortcode block with:"
+
+msgid "Content-Blocker aktivieren"
+msgstr "Enable content blockers"
+
+msgid "Platzhalter-Titel"
+msgstr "Placeholder title"
+
+msgid "Platzhalter-Text"
+msgstr "Placeholder text"
+
+msgid "Button-Text"
+msgstr "Button text"
+
+msgid "Hinweis, wenn kein passender Dienst aktiv ist"
+msgstr "Notice when no matching service is active"
+
+msgid "Automatisch erkannte Inhalte"
+msgstr "Automatically detected content"
+
+msgid "Blocker"
+msgstr "Blocker"
+
+msgid "Verknüpfter Dienst"
+msgstr "Linked service"
+
+msgid "Erkannte Quellen"
+msgstr "Detected sources"
+
+msgid "Aktiv"
+msgstr "Active"
+
+msgid "Blockieren"
+msgstr "Block"
+
+msgid "Wichtig: Der verknüpfte Dienst sollte unter Marketing angelegt und aktiviert sein, damit Besucher den Inhalt gezielt freischalten können."
+msgstr "Important: The linked service should be created and enabled under Marketing so visitors can unlock the content selectively."
+
+msgid "Externer Inhalt blockiert"
+msgstr "External content blocked"
+
+msgid "Dieser Inhalt wird erst geladen, wenn Sie dem zugehörigen Dienst zustimmen."
+msgstr "This content is loaded only after you consent to the related service."
+
+msgid "Inhalt laden"
+msgstr "Load content"
+
+msgid "Der passende Dienst ist im Consent Manager noch nicht aktiv. Bitte aktivieren Sie den Dienst im Backend."
+msgstr "The matching service is not active in the consent manager yet. Please enable the service in the backend."
+
+msgid "Content-Blocker Immer laden Button"
+msgstr "Content blocker always-load button"
+
+msgid "Button-Text einmalig laden"
+msgstr "Button text for one-time loading"
+
+msgid "Button-Text immer laden"
+msgstr "Button text for always loading"
+
+msgid "Dieses Video wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgstr "This video is loaded from %s. By displaying it, you accept the terms of use of %s."
+
+msgid "Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgstr "This external content is loaded from %s. By displaying it, you accept the terms of use of %s."
+
+msgid "Dieser Beitrag wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgstr "This post is loaded from %s. By displaying it, you accept the terms of use of %s."
+
+msgid "Diese Karte wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgstr "This map is loaded from %s. By displaying it, you accept the terms of use of %s."
+
+msgid "Video laden"
+msgstr "Load video"
+
+msgid "Inhalt laden"
+msgstr "Load content"
+
+msgid "Beitrag laden"
+msgstr "Load post"
+
+msgid "Karte laden"
+msgstr "Load map"
+
+msgid "Immer laden"
+msgstr "Always load"
+
+msgid "Nutzungsbedingungen"
+msgstr "terms of use"
+
+msgid "Farben im Video-Platzhalter"
+msgstr "Colors in the video placeholder"
+
+msgid "Farben im Inhalts-Platzhalter"
+msgstr "Colors in the content placeholder"
+
+msgid "Link Nutzungsbedingungen"
+msgstr "Terms link"
+
+msgid "Link Nutzungsbedingungen Hover"
+msgstr "Terms link hover"
+
+msgid "Button Video laden Hintergrund"
+msgstr "Load video button background"
+
+msgid "Button Video laden Text"
+msgstr "Load video button text"
+
+msgid "Button Video laden Hover Hintergrund"
+msgstr "Load video button hover background"
+
+msgid "Button Video laden Hover Text"
+msgstr "Load video button hover text"
+
+msgid "Button Inhalt laden Hintergrund"
+msgstr "Load content button background"
+
+msgid "Button Inhalt laden Text"
+msgstr "Load content button text"
+
+msgid "Button Inhalt laden Hover Hintergrund"
+msgstr "Load content button hover background"
+
+msgid "Button Inhalt laden Hover Text"
+msgstr "Load content button hover text"
+
+msgid "Button Immer laden Hintergrund"
+msgstr "Always load button background"
+
+msgid "Button Immer laden Text"
+msgstr "Always load button text"
+
+msgid "Button Immer laden Hover Hintergrund"
+msgstr "Always load button hover background"
+
+msgid "Button Immer laden Hover Text"
+msgstr "Always load button hover text"
+
+msgid "Platzhalterbilder pro Embed"
+msgstr "Placeholder images per embed"
+
+msgid "Hier erscheinen erkannte externe Embeds aus Seiten und Beiträgen. Hinterlege pro Embed eine Bild-URL oder wähle ein Bild aus der Mediathek."
+msgstr "Detected external embeds from pages and posts appear here. Add an image URL per embed or select an image from the media library."
+
+msgid "Hier erscheinen erkannte externe Embeds aus Seiten und Beiträgen. Hinterlege pro Embed einen Titel und optional eine Bild-URL oder wähle ein Bild aus der Mediathek."
+msgstr "Detected external embeds from pages and posts appear here. Add a title per embed and optionally an image URL or select an image from the media library."
+
+msgid "Aktuell wurden keine unterstützten Embeds gefunden."
+msgstr "No supported embeds were found yet."
+
+msgid "Embed"
+msgstr "Embed"
+
+msgid "Quelle"
+msgstr "Source"
+
+msgid "Platzhalterbild"
+msgstr "Placeholder image"
+
+msgid "Platzhalter-Titel"
+msgstr "Placeholder title"
+
+msgid "z. B. Video 1"
+msgstr "e.g. Video 1"
+
+msgid "Bild wählen"
+msgstr "Choose image"
+
+msgid "Entfernen"
+msgstr "Remove"
+
+msgid "Platzhalterbild auswählen"
+msgstr "Select placeholder image"
+
+msgid "Bild verwenden"
+msgstr "Use image"
+
+msgid "Ohne Titel"
+msgstr "Untitled"
+
+msgid "Die Content-Blocker-Einstellungen findest du direkt am Ende des jeweiligen externen Mediendienstes."
+msgstr "You can find the content blocker settings directly at the end of each external media service."
+
+msgid "Diese Audio-Datei wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgstr "This audio file is loaded from %s. By displaying it, you accept the terms of use of %s."
+
+msgid "Audio laden"
+msgstr "Load audio"
