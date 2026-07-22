@@ -14,8 +14,10 @@ const defaultSettings = {
     providerAddress: '',
     bannerVersion: '',
     privacyPolicyVersion: '',
+    necessaryOnlyMode: false,
     consentLogEnabled: true,
     consentLogEndpoint: '',
+    consentLifetimeSeconds: 31536000,
     iconSvg: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><circle cx="16" cy="16" r="12" stroke="currentColor" stroke-width="2.5"/><circle cx="11" cy="13" r="2.2" fill="currentColor"/><circle cx="18" cy="10" r="2" fill="currentColor"/><circle cx="21" cy="18" r="2.4" fill="currentColor"/><circle cx="13" cy="21" r="1.9" fill="currentColor"/></svg>',
     boxIconSvg: null,
     floatingIconSvg: null,
@@ -29,6 +31,7 @@ const defaultSettings = {
 
 const defaultTexts = {
     dialog_title: 'Datenschutzeinstellungen',
+    information_title: 'Cookie-Informationen',
     tab_overview: 'Übersicht',
     tab_details: 'Details & Cookies',
     tab_history: 'Historie',
@@ -49,15 +52,21 @@ const defaultTexts = {
     external_media_inactive_info: 'Derzeit sind keine externen Medien aktiv.',
     info_default: 'Essenziell für die Grundfunktionen der Website.',
     details_intro: 'Sie können auswählen, welche Kategorien Sie erlauben. Ihre Entscheidung können Sie jederzeit über Cookie-Einstellungen ändern.',
+    necessary_only_intro: 'Derzeit werden ausschließlich technisch notwendige Speichertechnologien eingesetzt. Der Consent Manager speichert in diesem Modus keine Auswahl, Consent-ID oder Historie und setzt kein Consent-Cookie.',
     history_intro: 'Hier finden Sie den Verlauf Ihrer Einwilligungen.',
     consent_id_label: 'Ihre Consent-ID:',
     history_empty: 'Noch keine Einträge vorhanden.',
     reject_button: 'Alle ablehnen',
+    necessary_only_button: 'Nur notwendige Cookies',
     accept_all_button: 'Alle akzeptieren',
     save_button: 'Auswahl speichern',
     customize_button: 'Auswahl anpassen',
+    details_button: 'Details anzeigen',
     settings_link: 'Cookie-Einstellungen',
+    information_settings_link: 'Cookie-Informationen',
     floating_aria_label: 'Datenschutz-Einstellungen öffnen',
+    information_floating_aria_label: 'Cookie-Informationen öffnen',
+    information_close_button: 'Schließen',
     service_always_on: 'Immer an',
     service_description_label: 'Beschreibung',
     service_provider_label: 'Provider',
@@ -70,13 +79,15 @@ const defaultTexts = {
     service_safeguards_label: 'Garantien / Schutzmaßnahmen',
     service_count_single: 'Service',
     service_count_plural: 'Services',
+    service_details_show_label: 'Details zu {category} anzeigen',
+    service_details_hide_label: 'Details zu {category} ausblenden',
     cookie_name_label: 'Name',
     cookie_expiry_label: 'Laufzeit',
     cookie_purpose_label: 'Zweck',
     history_date_label: 'Datum',
     history_status_label: 'Status',
     content_blocker_title: '',
-    content_blocker_text: 'Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.',
+    content_blocker_text: 'Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.',
     content_blocker_button: 'Inhalt laden',
     content_blocker_always_button: 'Immer laden',
     content_blocker_missing_service_text: 'Der passende Dienst ist im Consent Manager noch nicht aktiv.'
@@ -107,6 +118,20 @@ function escapeHTML(value) {
 
 function text(key) {
     return escapeHTML(settings.texts[key] ?? defaultTexts[key] ?? '');
+}
+
+function formatRawText(key, replacements = {}) {
+    let value = settings.texts[key] ?? defaultTexts[key] ?? '';
+
+    Object.entries(replacements).forEach(([placeholder, replacement]) => {
+        value = String(value).split(`{${placeholder}}`).join(String(replacement));
+    });
+
+    return String(value);
+}
+
+function formatText(key, replacements = {}) {
+    return escapeHTML(formatRawText(key, replacements));
 }
 
 const defaultServices = {
@@ -156,20 +181,39 @@ const ConsentManager = {
         return ['necessary', ...this.getOptionalCategories()];
     },
 
+    hasOptionalServices() {
+        return this.getOptionalCategories().some(category => (
+            Array.isArray(this.services[category]) && this.services[category].length > 0
+        ));
+    },
+
+    isNecessaryOnlyMode() {
+        return settings.necessaryOnlyMode === true || !this.hasOptionalServices();
+    },
+
     init() {
-        this.loadConsent();
+        const necessaryOnlyMode = this.isNecessaryOnlyMode();
+
+        if (necessaryOnlyMode) {
+            this.clearStoredConsent();
+            document.documentElement.classList.remove('consent-pending');
+        } else {
+            this.loadConsent();
+        }
 
         const path = window.location.pathname;
         const isLegalPage = settings.legalPathSlugs.some(slug => path.includes(slug));
 
-        if (!this.consent.timestamp && !isLegalPage) {
+        if (!necessaryOnlyMode && !this.consent.timestamp && !isLegalPage) {
             this.showBanner();
         } else {
             document.documentElement.classList.remove('consent-pending');
         }
         this.createFloatingButton();
         this.bindEvents();
-        this.applyConsent();
+        if (!necessaryOnlyMode) {
+            this.applyConsent();
+        }
     },
 
     generateUID() {
@@ -184,7 +228,10 @@ const ConsentManager = {
         const btn = document.createElement('button');
         btn.id = 'consent-floating-btn';
         btn.className = 'consent-floating-btn';
-        btn.setAttribute('aria-label', settings.texts.floating_aria_label);
+        btn.setAttribute(
+            'aria-label',
+            this.isNecessaryOnlyMode() ? settings.texts.information_floating_aria_label : settings.texts.floating_aria_label
+        );
         btn.innerHTML = settings.floatingIconSvg;
         document.body.appendChild(btn);
         btn.addEventListener('click', () => {
@@ -207,6 +254,16 @@ const ConsentManager = {
         if (stored) {
             try {
                 this.consent = JSON.parse(stored);
+                const timestamp = Date.parse(this.consent.timestamp || '');
+                const lifetimeMilliseconds = this.getConsentLifetimeSeconds() * 1000;
+                const versionChanged = (this.consent.bannerVersion || '') !== (settings.bannerVersion || '')
+                    || (this.consent.privacyPolicyVersion || '') !== (settings.privacyPolicyVersion || '');
+
+                if (!Number.isFinite(timestamp) || Date.now() - timestamp >= lifetimeMilliseconds || versionChanged) {
+                    this.clearStoredConsent();
+                    return;
+                }
+
                 if (!this.consent.services) this.consent.services = {};
                 if (!this.consent.history) this.consent.history = [];
                 this.getOptionalCategories().forEach(category => {
@@ -220,8 +277,38 @@ const ConsentManager = {
         }
     },
 
+    clearStoredConsent() {
+        try {
+            localStorage.removeItem(this.storageKey);
+        } catch (error) {
+            // Storage can be unavailable in restricted browser contexts.
+        }
+
+        try {
+            document.cookie = `${encodeURIComponent(settings.cookieName)}=; path=/; max-age=0; SameSite=Lax`;
+        } catch (error) {
+            // Cookie access can be unavailable in restricted browser contexts.
+        }
+
+        this.consent = {
+            necessary: true,
+            statistics: false,
+            marketing: false,
+            external_media: false,
+            services: {},
+            history: [],
+            uid: null,
+            timestamp: null
+        };
+    },
+
     saveToStorage() {
         localStorage.setItem(this.storageKey, JSON.stringify(this.consent));
+    },
+
+    getConsentLifetimeSeconds() {
+        const lifetime = Number(settings.consentLifetimeSeconds);
+        return Number.isFinite(lifetime) && lifetime > 0 ? Math.floor(lifetime) : 31536000;
     },
 
     getAllOptionalServices() {
@@ -282,7 +369,7 @@ const ConsentManager = {
         logEntry.services = { ...serviceConsent };
         this.sendConsentLog(logEntry);
         this.executeRevokedServiceOptOut(previousServiceConsent, serviceConsent);
-        document.cookie = `${encodeURIComponent(settings.cookieName)}=1; path=/; max-age=31536000; SameSite=Lax`;
+        document.cookie = `${encodeURIComponent(settings.cookieName)}=1; path=/; max-age=${this.getConsentLifetimeSeconds()}; SameSite=Lax`;
         const shouldReloadAfterRevocation = this.hasLoadedBlockedContent()
             && this.getAllOptionalServices().some(({ service }) => this.consent.services[service.id] === false);
 
@@ -344,6 +431,27 @@ const ConsentManager = {
         }
     },
 
+    applyEmbedPrivacyOptions(html) {
+        const template = document.createElement('template');
+        template.innerHTML = html;
+
+        template.content.querySelectorAll('iframe[src]').forEach(iframe => {
+            try {
+                const url = new URL(iframe.getAttribute('src'), document.baseURI);
+                const hostname = url.hostname.toLowerCase();
+
+                if (hostname === 'vimeo.com' || hostname.endsWith('.vimeo.com')) {
+                    url.searchParams.set('dnt', '1');
+                    iframe.setAttribute('src', url.toString());
+                }
+            } catch (error) {
+                // Keep malformed or non-URL sources unchanged.
+            }
+        });
+
+        return template.innerHTML;
+    },
+
     restoreAllowedContentBlocks() {
         if (!settings.contentBlockers || settings.contentBlockers.enabled === false) {
             return;
@@ -375,11 +483,12 @@ const ConsentManager = {
             return;
         }
 
+        const privacyAwareHtml = this.applyEmbedPrivacyOptions(original);
         const scrollState = this.captureContentBlockScrollState(block);
         this.blurActiveElementInside(block);
-        const anchor = this.replaceBlockedElementWithHtml(block, original, scrollState);
+        const anchor = this.replaceBlockedElementWithHtml(block, privacyAwareHtml, scrollState);
         this.keepLoadedContentInPlace(anchor, scrollState);
-        this.processLoadedExternalEmbed(original);
+        this.processLoadedExternalEmbed(privacyAwareHtml);
     },
 
     captureContentBlockScrollState(block) {
@@ -553,7 +662,7 @@ const ConsentManager = {
         if (this.consent.history.length > 10) this.consent.history.pop();
 
         this.saveToStorage();
-        document.cookie = `${encodeURIComponent(settings.cookieName)}=1; path=/; max-age=31536000; SameSite=Lax`;
+        document.cookie = `${encodeURIComponent(settings.cookieName)}=1; path=/; max-age=${this.getConsentLifetimeSeconds()}; SameSite=Lax`;
         this.applyConsent();
         this.updateCheckboxState();
     },
@@ -695,6 +804,8 @@ const ConsentManager = {
     showBanner() {
         if (document.getElementById('consent-banner')) return;
         this.previousActiveElement = document.activeElement;
+        const hasOptionalServices = this.hasOptionalServices();
+        const necessaryOnlyMode = this.isNecessaryOnlyMode();
 
         const html = `
       <div id="consent-banner" class="consent-banner consent-dialog-outline" role="dialog" aria-modal="true" aria-labelledby="consent-title" tabindex="-1">
@@ -702,17 +813,17 @@ const ConsentManager = {
           <div class="consent-header">
             <div class="flex-align-center">
               <span class="consent-header-icon">${settings.boxIconSvg}</span>
-              <h2 id="consent-title" class="mt-0 fs-1-5">${text('dialog_title')}</h2>
+              <h2 id="consent-title" class="mt-0 fs-1-5">${necessaryOnlyMode ? text('information_title') : text('dialog_title')}</h2>
             </div>
             <div class="consent-tabs">
                <button class="tab-btn active" data-tab="simple">${text('tab_overview')}</button>
                <button class="tab-btn" data-tab="details">${text('tab_details')}</button>
-               <button class="tab-btn" data-tab="history">${text('tab_history')}</button>
+               ${necessaryOnlyMode ? '' : `<button class="tab-btn" data-tab="history">${text('tab_history')}</button>`}
             </div>
           </div>
 
           <div id="view-simple" class="consent-view active">
-            <p>${text('intro_text')}</p>
+            <p>${hasOptionalServices ? text('intro_text') : text('necessary_only_intro')}</p>
             <div class="consent-categories">
               <label class="consent-option disabled" data-info="${text('necessary_info')}">
                 <input type="checkbox" checked disabled>
@@ -724,34 +835,19 @@ const ConsentManager = {
                 <input type="checkbox" id="consent-stats" class="consent-master-checkbox" data-category="statistics">
                 <span class="checkbox-visual"></span>
                 <span>${text('statistics_label')}</span>
-              </label>` : `
-              <label class="consent-option disabled" data-info="${text('statistics_inactive_info')}">
-                <input type="checkbox" disabled>
-                <span class="checkbox-visual"></span>
-                <span style="color:var(--ccm-color-text-muted);">${text('statistics_inactive_label')}</span>
-              </label>`}
+              </label>` : ''}
               ${this.services.marketing && this.services.marketing.length > 0 ? `
               <label class="consent-option" data-info="${text('marketing_info')}">
                 <input type="checkbox" id="consent-marketing" class="consent-master-checkbox" data-category="marketing">
                 <span class="checkbox-visual"></span>
                 <span>${text('marketing_label')}</span>
-              </label>` : `
-              <label class="consent-option disabled" data-info="${text('marketing_inactive_info')}">
-                <input type="checkbox" disabled>
-                <span class="checkbox-visual"></span>
-                <span style="color:var(--ccm-color-text-muted);">${text('marketing_inactive_label')}</span>
-              </label>`}
+              </label>` : ''}
               ${this.services.external_media && this.services.external_media.length > 0 ? `
               <label class="consent-option" data-info="${text('external_media_info')}">
                 <input type="checkbox" id="consent-external-media" class="consent-master-checkbox" data-category="external_media">
                 <span class="checkbox-visual"></span>
                 <span>${text('external_media_label')}</span>
-              </label>` : `
-              <label class="consent-option disabled" data-info="${text('external_media_inactive_info')}">
-                <input type="checkbox" disabled>
-                <span class="checkbox-visual"></span>
-                <span style="color:var(--ccm-color-text-muted);">${text('external_media_inactive_label')}</span>
-              </label>`}
+              </label>` : ''}
             </div>
             <div id="consent-info-display" class="consent-info-display">
                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
@@ -760,11 +856,11 @@ const ConsentManager = {
           </div>
 
           <div id="view-details" class="consent-view">
-            <p class="detail-intro">${text('details_intro')}</p>
+            <p class="detail-intro">${hasOptionalServices ? text('details_intro') : text('necessary_only_intro')}</p>
             <div class="service-accordion" id="service-list"></div>
           </div>
 
-          <div id="view-history" class="consent-view">
+          ${necessaryOnlyMode ? '' : `<div id="view-history" class="consent-view">
             <div class="history-container">
                 <p class="history-intro">
                   ${text('history_intro')}
@@ -775,16 +871,18 @@ const ConsentManager = {
                    <!-- History Items rendered here -->
                 </div>
             </div>
-          </div>
+          </div>`}
 
           <div class="consent-actions" style="display:flex; flex-direction:row; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-            <button id="consent-reject" class="btn btn-primary" style="flex:1; min-width:140px; justify-content:center;">${text('reject_button')}</button>
-            <button id="consent-accept-all" class="btn btn-primary" style="flex:1; min-width:140px; justify-content:center;">${text('accept_all_button')}</button>
+            ${necessaryOnlyMode
+                ? `<button id="consent-close-information" class="btn btn-primary" style="flex:1; min-width:140px; justify-content:center;">${text('information_close_button')}</button>`
+                : `<button id="consent-reject" class="btn btn-primary" style="flex:1; min-width:140px; justify-content:center;">${text('reject_button')}</button>
+                   <button id="consent-accept-all" class="btn btn-primary" style="flex:1; min-width:140px; justify-content:center;">${text('accept_all_button')}</button>`}
           </div>
-          <div class="consent-secondary-actions" style="display:flex; flex-direction:row; flex-wrap:wrap; gap:10px; align-items:center;">
+          ${necessaryOnlyMode ? '' : `<div class="consent-secondary-actions" style="display:flex; flex-direction:row; flex-wrap:wrap; gap:10px; align-items:center;">
             <button id="consent-save" class="btn btn-ghost btn-sm" style="flex:1; min-width:140px; justify-content:center;">${text('save_button')}</button>
             <button id="consent-customize" class="btn btn-ghost btn-sm" type="button" style="flex:1; min-width:140px; justify-content:center; text-align:center;">${text('customize_button')}</button>
-          </div>
+          </div>`}
         </div>
       </div>
     `;
@@ -820,9 +918,10 @@ const ConsentManager = {
             const s = entry.settings;
             const statusParts = [];
             if (s.necessary) statusParts.push(`${settings.texts.necessary_label}: ✅`);
-            if (s.statistics) statusParts.push(`${settings.texts.statistics_label}: ✅`); else statusParts.push(`${settings.texts.statistics_label}: ❌`);
-            if (s.marketing) statusParts.push(`${settings.texts.marketing_label}: ✅`); else statusParts.push(`${settings.texts.marketing_label}: ❌`);
-            if (s.external_media) statusParts.push(`${settings.texts.external_media_label}: ✅`); else statusParts.push(`${settings.texts.external_media_label}: ❌`);
+            this.getOptionalCategories().forEach(category => {
+                if (!Array.isArray(this.services[category]) || this.services[category].length === 0) return;
+                statusParts.push(`${settings.texts[`${category}_label`]}: ${s[category] ? '✅' : '❌'}`);
+            });
             if (entry.bannerVersion) statusParts.push(`Banner: ${entry.bannerVersion}`);
             if (entry.privacyPolicyVersion) statusParts.push(`Datenschutz: ${entry.privacyPolicyVersion}`);
 
@@ -844,16 +943,17 @@ const ConsentManager = {
         let html = '';
         const categories = this.getServiceCategories();
         const titles = {
-            necessary: text('necessary_label'),
-            statistics: text('statistics_label'),
-            marketing: text('marketing_label'),
-            external_media: text('external_media_label')
+            necessary: settings.texts.necessary_label ?? defaultTexts.necessary_label,
+            statistics: settings.texts.statistics_label ?? defaultTexts.statistics_label,
+            marketing: settings.texts.marketing_label ?? defaultTexts.marketing_label,
+            external_media: settings.texts.external_media_label ?? defaultTexts.external_media_label
         };
 
         categories.forEach(cat => {
             const services = this.services[cat];
-            if (!services) return;
+            if (!Array.isArray(services) || services.length === 0) return;
             const isNecessary = cat === 'necessary';
+            const detailsId = `consent-service-details-${cat}`;
 
             html += `
         <div class="service-group" data-category="${cat}">
@@ -861,12 +961,12 @@ const ConsentManager = {
             <label class="service-toggle">
               <input type="checkbox" class="category-checkbox" data-cat="${cat}" ${isNecessary ? 'checked disabled' : ''}>
               <span class="checkbox-visual small"></span>
-              <strong>${titles[cat]}</strong>
+              <strong>${escapeHTML(titles[cat])}</strong>
             </label>
             <span class="service-badge">${services.length} ${services.length > 1 ? text('service_count_plural') : text('service_count_single')}</span>
-            <button class="service-expand-btn">▼</button>
+            <button type="button" class="service-expand-btn" aria-label="${formatText('service_details_show_label', { category: titles[cat] })}" aria-expanded="false" aria-controls="${detailsId}"><span aria-hidden="true">▼</span></button>
           </div>
-          <div class="service-details hidden">
+          <div id="${detailsId}" class="service-details hidden">
             ${services.map(s => `
               <div class="service-item">
                 <div class="service-item-header">
@@ -885,7 +985,7 @@ const ConsentManager = {
                      ${escapeHTML(s.provider)}<br>
                      <small class="text-muted-small">${escapeHTML(s.address || '')}</small><br>
                      <a href="${escapeHTML(s.privacyUrl || '#')}" class="link-muted">${text('service_privacy_label')}</a>
-                     ${s.cookiePolicyUrl ? `<br><a href="${escapeHTML(s.cookiePolicyUrl)}" class="link-muted">${text('service_cookie_policy_label')}</a>` : ''}
+                     ${s.cookiePolicyUrl && s.cookiePolicyUrl !== s.privacyUrl ? `<br><a href="${escapeHTML(s.cookiePolicyUrl)}" class="link-muted">${text('service_cookie_policy_label')}</a>` : ''}
                    </div>
                    <div class="meta-label">${text('service_legal_basis_label')}</div>
                    <div class="meta-value">${escapeHTML(s.legalBasis || '')}</div>
@@ -895,21 +995,23 @@ const ConsentManager = {
                    <div class="meta-value">${escapeHTML(s.recipientCountry || '')}</div>
                    <div class="meta-label">${text('service_safeguards_label')}</div>
                    <div class="meta-value">${escapeHTML(s.safeguards || '')}</div>
-                   <div class="meta-label meta-label-full">${text('service_cookies_label')}</div>
-                   <div class="meta-value meta-value-full cookie-table-wrap">
-                     <table class="cookie-table">
-                       <thead><tr><th>${text('cookie_name_label')}</th><th>${text('cookie_expiry_label')}</th><th>${text('cookie_purpose_label')}</th></tr></thead>
-                       <tbody>
-                         ${s.cookies.map(c => `
-                           <tr>
-                             <td>${escapeHTML(c.name)}</td>
-                             <td>${escapeHTML(c.expiry)}</td>
-                             <td>${escapeHTML(c.purpose || c.type)}</td>
-                           </tr>
-                         `).join('')}
-                       </tbody>
-                     </table>
-                   </div>
+                   ${Array.isArray(s.cookies) && s.cookies.length > 0 ? `
+                     <div class="meta-label meta-label-full">${text('service_cookies_label')}</div>
+                     <div class="meta-value meta-value-full cookie-table-wrap">
+                       <table class="cookie-table">
+                         <thead><tr><th>${text('cookie_name_label')}</th><th>${text('cookie_expiry_label')}</th><th>${text('cookie_purpose_label')}</th></tr></thead>
+                         <tbody>
+                           ${s.cookies.map(c => `
+                             <tr>
+                               <td>${escapeHTML(c.name)}</td>
+                               <td>${escapeHTML(c.expiry)}</td>
+                               <td>${escapeHTML(c.purpose || c.type)}</td>
+                             </tr>
+                           `).join('')}
+                         </tbody>
+                       </table>
+                     </div>
+                   ` : ''}
                 </div>
               </div>
             `).join('')}
@@ -926,7 +1028,15 @@ const ConsentManager = {
                 const details = group.querySelector('.service-details');
                 const btn = group.querySelector('.service-expand-btn');
                 details.classList.toggle('hidden');
-                btn.textContent = details.classList.contains('hidden') ? '▼' : '▲';
+                const isExpanded = !details.classList.contains('hidden');
+                const category = group.getAttribute('data-category');
+                btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+                btn.setAttribute(
+                    'aria-label',
+                    formatRawText(isExpanded ? 'service_details_hide_label' : 'service_details_show_label', { category: titles[category] })
+                );
+                const icon = btn.querySelector('[aria-hidden="true"]');
+                if (icon) icon.textContent = isExpanded ? '▲' : '▼';
             });
         });
 
@@ -995,6 +1105,18 @@ const ConsentManager = {
         document.querySelectorAll('.consent-view').forEach(v => v.classList.remove('active'));
         target.classList.add('active');
 
+        const customizeButton = document.getElementById('consent-customize');
+        const saveButton = document.getElementById('consent-save');
+        const secondaryActions = document.querySelector('.consent-secondary-actions');
+
+        if (customizeButton) {
+            customizeButton.hidden = tabName === 'details';
+        }
+
+        if (secondaryActions) {
+            secondaryActions.hidden = tabName === 'details' && !saveButton;
+        }
+
         if (tabName === 'history') {
             this.renderHistory();
         }
@@ -1051,11 +1173,20 @@ const ConsentManager = {
     bindBannerEvents() {
         const banner = document.getElementById('consent-banner');
 
+        document.getElementById('consent-close-information')?.addEventListener('click', () => {
+            this.hideBanner();
+        });
+
         document.getElementById('consent-accept-all')?.addEventListener('click', () => {
             banner.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 if (!cb.disabled) cb.checked = true;
             });
-            this.saveConsent({ necessary: true, statistics: true, marketing: true, external_media: true });
+            this.saveConsent({
+                necessary: true,
+                statistics: Array.isArray(this.services.statistics) && this.services.statistics.length > 0,
+                marketing: Array.isArray(this.services.marketing) && this.services.marketing.length > 0,
+                external_media: Array.isArray(this.services.external_media) && this.services.external_media.length > 0
+            });
         });
 
         document.getElementById('consent-reject')?.addEventListener('click', () => {
@@ -1109,14 +1240,27 @@ const ConsentManager = {
     },
 
     bindEvents() {
-        const openLinks = document.querySelectorAll('.cookie-settings-link');
+        const knownSettingsLabels = new Set([
+            settings.texts.settings_link,
+            defaultTexts.settings_link,
+            settings.texts.information_settings_link,
+            defaultTexts.information_settings_link
+        ].filter(Boolean).map(label => String(label).trim()));
+        const openLinks = Array.from(document.querySelectorAll('.cookie-settings-link, a[href="#"]'))
+            .filter(link => link.classList.contains('cookie-settings-link') || knownSettingsLabels.has(link.textContent.trim()));
+
         openLinks.forEach(link => {
+            if (this.isNecessaryOnlyMode()) {
+                link.textContent = settings.texts.information_settings_link;
+                link.setAttribute('aria-label', settings.texts.information_floating_aria_label);
+            }
+
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.showBanner();
                 setTimeout(() => {
                     this.updateCheckboxState();
-                    this.activateTab('details');
+                    this.activateTab(this.isNecessaryOnlyMode() ? 'simple' : 'details');
                 }, 50);
             });
         });

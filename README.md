@@ -40,6 +40,38 @@ Der Floating-Button wird automatisch ausgegeben. Für einen zusätzlichen Link i
 
 Die alten Shortcodes `[conset_cookie_settings]` und `[conny_cookie_settings]` bleiben als Aliase erhalten.
 
+## Verhalten ohne optionale Dienste
+
+Sind keine Statistik-, Marketing- oder externen Mediendienste aktiv, arbeitet das Plugin seit Version 1.8.48 im Nur-notwendig-Modus:
+
+- kein automatischer Banner beim Erstbesuch;
+- kein Consent-Cookie und kein Local-Storage-Eintrag;
+- keine Consent-ID, keine Einwilligungshistorie und keine neuen Serverprotokolle;
+- kein Historienreiter und keine Auswahl- oder Details-Schaltfläche neben den vorhandenen Tabs;
+- der Footer-Link und der Floating-Button öffnen ausschließlich die „Cookie-Informationen“;
+- ein bereits als „Cookie-Einstellungen“ gespeicherter Footerlink wird im Nur-notwendig-Modus gezielt als „Cookie-Informationen“ beschriftet und angebunden, ohne das Footer-Element neu zu speichern;
+- beim ersten Laden nach dem Update werden der frühere Browser-Speichereintrag und das frühere Consent-Cookie entfernt.
+
+Sobald mindestens ein optionaler Dienst tatsächlich verfügbar ist, wechselt das Plugin automatisch zurück in den vollständigen Consent-Modus mit Banner, Auswahl, Speicherung und Protokollierung. Frühere serverseitige Protokolle werden durch die bestehende technische Aufbewahrungsgrenze automatisch bereinigt.
+
+## Datenschutzerklärung ab Version 1.8.49
+
+Version 1.8.49 ersetzt auf der vorhandenen Datenschutzseite den bisherigen allgemeinen Abschnitt „Cookies“ gezielt durch eine technische Dokumentation. Die Migration:
+
+- verwendet ausschließlich die bereits vorhandene Seite aus der konfigurierten Datenschutz-URL beziehungsweise den vorhandenen Slug `datenschutz` oder `datenschutzerklaerung`;
+- legt keine neue Seite an und verändert weder Seiten-ID noch Slug;
+- dokumentiert den speicherfreien Nur-notwendig-Modus und das entfernte Cookie `n24_consent_manager_consent`;
+- führt nur bedingte WordPress-Login- und Einstellungs-Cookies auf, nicht erfundene Shop-, Kommentar-, Analyse- oder Marketing-Cookies;
+- verwendet einen markierten Core-HTML-Block, damit spätere Plugin-Updates denselben Abschnitt aktualisieren können, ohne die übrige Datenschutzerklärung zu überschreiben.
+
+Die Migration wird nur als erfolgreich markiert, wenn der neue Abschnitt tatsächlich im gespeicherten Seiteninhalt vorhanden ist. Bei einer abweichenden Seitenstruktur wird nichts überschrieben.
+
+Version 1.8.50 aktualisiert diesen markierten Abschnitt erneut und entfernt daraus den Text zu historischen Einwilligungsprotokollen. Dafür besitzt das Update eine eigene Migrationsmarke, sodass die Löschung auch ausgeführt wird, wenn Version 1.8.49 auf der Zielwebsite bereits installiert war.
+
+Version 1.8.51 begrenzt gespeicherte Einwilligungen technisch auf ein Jahr und fordert bei geänderter Banner- oder Datenschutzversion erneut eine Entscheidung an. Beim Wiederherstellen blockierter Vimeo-Einbettungen wird `dnt=1` automatisch an der Player-URL gesetzt. Die Vimeo-Dienstangaben nennen im DNT-Modus die vier von Vimeo ausgewiesenen Sicherheitscookies.
+
+Beim Update werden bekannte ältere InstantVOLT-Anbieterbezeichnungen auf „InstantVOLT-Energy GmbH“ vereinheitlicht. Ein ungültiger oder von einer anderen Domain übernommener Datenschutz-Link wird nur dann auf eine vorhandene lokale Datenschutzseite umgestellt. Das Plugin legt dabei keine Seiten an und überschreibt keine anderweitig angepassten Seitentexte.
+
 ## Dienste erweitern
 
 Weitere Statistik- oder Marketing-Dienste können per Filter ergänzt werden:

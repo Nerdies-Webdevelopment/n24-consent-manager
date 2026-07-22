@@ -378,6 +378,12 @@ msgstr "Default info"
 msgid "Details-Einleitung"
 msgstr "Details introduction"
 
+msgid "Titel Cookie-Informationen"
+msgstr "Cookie information title"
+
+msgid "Einleitung nur notwendige Cookies"
+msgstr "Necessary-cookies-only introduction"
+
 msgid "Historie-Einleitung"
 msgstr "History introduction"
 
@@ -390,6 +396,9 @@ msgstr "Empty history"
 msgid "Button ablehnen"
 msgstr "Reject button"
 
+msgid "Button nur notwendige Cookies"
+msgstr "Necessary cookies only button"
+
 msgid "Button akzeptieren"
 msgstr "Accept button"
 
@@ -399,11 +408,23 @@ msgstr "Save button"
 msgid "Button Auswahl anpassen"
 msgstr "Customize selection button"
 
+msgid "Button Details anzeigen"
+msgstr "Show details button"
+
 msgid "Link Cookie-Einstellungen"
 msgstr "Cookie settings link"
 
+msgid "Link Cookie-Informationen"
+msgstr "Cookie information link"
+
 msgid "Floating-Button ARIA-Label"
 msgstr "Floating button ARIA label"
+
+msgid "Cookie-Informationen ARIA-Label"
+msgstr "Cookie information ARIA label"
+
+msgid "Button Cookie-Informationen schließen"
+msgstr "Close cookie information button"
 
 msgid "Service immer aktiv"
 msgstr "Service always active"
@@ -429,6 +450,12 @@ msgstr "Service count singular"
 msgid "Service Anzahl Plural"
 msgstr "Service count plural"
 
+msgid "ARIA-Label Details anzeigen"
+msgstr "Show details ARIA label"
+
+msgid "ARIA-Label Details ausblenden"
+msgstr "Hide details ARIA label"
+
 msgid "Cookie Name Label"
 msgstr "Cookie name label"
 
@@ -450,6 +477,15 @@ msgstr "Necessary service name"
 msgid "Notwendiger Service Zweck"
 msgstr "Necessary service purpose"
 
+msgid "Nur-notwendig-Funktion Name"
+msgstr "Necessary-only function name"
+
+msgid "Nur-notwendig-Funktion Zweck"
+msgstr "Necessary-only function purpose"
+
+msgid "Nur-notwendig-Speicherhinweis"
+msgstr "Necessary-only storage notice"
+
 msgid "Notwendiger Cookie Laufzeit"
 msgstr "Necessary cookie duration"
 
@@ -467,6 +503,9 @@ msgstr "Privacy on this website"
 
 msgid "Datenschutzeinstellungen"
 msgstr "Privacy settings"
+
+msgid "Cookie-Informationen"
+msgstr "Cookie information"
 
 msgid "Übersicht"
 msgstr "Overview"
@@ -513,6 +552,9 @@ msgstr "No marketing services are currently active."
 msgid "Sie können auswählen, welche Kategorien Sie erlauben. Ihre Entscheidung können Sie jederzeit über Cookie-Einstellungen ändern."
 msgstr "You can choose which categories you allow. You can change your decision at any time via cookie settings."
 
+msgid "Derzeit werden ausschließlich technisch notwendige Speichertechnologien eingesetzt. Der Consent Manager speichert in diesem Modus keine Auswahl, Consent-ID oder Historie und setzt kein Consent-Cookie."
+msgstr "Only technically necessary storage technologies are currently used. In this mode, the consent manager stores no selection, consent ID, or history and sets no consent cookie."
+
 msgid "Hier finden Sie den Verlauf Ihrer Einwilligungen."
 msgstr "Here you can find the history of your consents."
 
@@ -525,6 +567,9 @@ msgstr "No entries yet."
 msgid "Alle ablehnen"
 msgstr "Reject all"
 
+msgid "Nur notwendige Cookies"
+msgstr "Necessary cookies only"
+
 msgid "Alle akzeptieren"
 msgstr "Accept all"
 
@@ -534,14 +579,29 @@ msgstr "Save selection"
 msgid "Auswahl anpassen"
 msgstr "Customize selection"
 
+msgid "Details anzeigen"
+msgstr "Show details"
+
 msgid "Cookie-Einstellungen"
 msgstr "Cookie settings"
 
 msgid "Datenschutz-Einstellungen öffnen"
 msgstr "Open privacy settings"
 
+msgid "Cookie-Informationen öffnen"
+msgstr "Open cookie information"
+
+msgid "Schließen"
+msgstr "Close"
+
 msgid "Immer an"
 msgstr "Always on"
+
+msgid "Details zu {category} anzeigen"
+msgstr "Show details for {category}"
+
+msgid "Details zu {category} ausblenden"
+msgstr "Hide details for {category}"
 
 msgid "Beschreibung"
 msgstr "Description"
@@ -581,6 +641,12 @@ msgstr "Status"
 
 msgid "Consent Manager"
 msgstr "Consent Manager"
+
+msgid "Stellt Informationen zu technisch notwendigen Speichertechnologien bereit. Im Nur-notwendig-Modus werden keine Auswahl, Consent-ID oder Historie gespeichert."
+msgstr "Provides information about technically necessary storage technologies. In necessary-only mode, no selection, consent ID, or history is stored."
+
+msgid "Der Consent Manager setzt in diesem Modus kein Consent-Cookie und übermittelt kein Einwilligungsprotokoll an den Server."
+msgstr "In this mode, the consent manager sets no consent cookie and sends no consent log to the server."
 
 msgid "Speichert den Zustimmungsstatus des Benutzers für Cookie-Einstellungen."
 msgstr "Stores the user consent status for cookie settings."
@@ -993,16 +1059,16 @@ msgstr "Button text for one-time loading"
 msgid "Button-Text immer laden"
 msgstr "Button text for always loading"
 
-msgid "Dieses Video wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgid "Dieses Video wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s."
 msgstr "This video is loaded from %s. By displaying it, you accept the terms of use of %s."
 
-msgid "Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgid "Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s."
 msgstr "This external content is loaded from %s. By displaying it, you accept the terms of use of %s."
 
-msgid "Dieser Beitrag wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgid "Dieser Beitrag wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s."
 msgstr "This post is loaded from %s. By displaying it, you accept the terms of use of %s."
 
-msgid "Diese Karte wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgid "Diese Karte wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s."
 msgstr "This map is loaded from %s. By displaying it, you accept the terms of use of %s."
 
 msgid "Video laden"
@@ -1113,7 +1179,7 @@ msgstr "Untitled"
 msgid "Die Content-Blocker-Einstellungen findest du direkt am Ende des jeweiligen externen Mediendienstes."
 msgstr "You can find the content blocker settings directly at the end of each external media service."
 
-msgid "Diese Audio-Datei wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s."
+msgid "Diese Audio-Datei wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s."
 msgstr "This audio file is loaded from %s. By displaying it, you accept the terms of use of %s."
 
 msgid "Audio laden"

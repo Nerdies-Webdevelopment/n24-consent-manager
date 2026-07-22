@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: N24 Consent Manager
- * Description: DSGVO Consent-Banner mit einstellbaren Farben, Icon, Texten und Cookie-Einstellungen.
- * Version: 1.8.45
+ * Description: Consent- und Cookie-Informationen mit einstellbaren Farben, Icon und Texten.
+ * Version: 1.8.51
  * Author: Nerdies24
  * Text Domain: n24-consent-manager
  * Domain Path: /languages
@@ -14,11 +14,20 @@ if (!defined('ABSPATH')) {
 
 final class N24_Consent_Manager
 {
-    private const VERSION = '1.8.45';
+    private const VERSION = '1.8.51';
     private const TEXT_DOMAIN = 'n24-consent-manager';
     private const OPTION_NAME = 'n24_consent_manager_options';
     private const LOG_TABLE_VERSION = '1.0';
     private const LOG_TABLE_VERSION_OPTION = 'n24_consent_manager_log_table_version';
+    private const MIGRATION_1846_OPTION = 'n24_consent_manager_migration_1846';
+    private const MIGRATION_1847_OPTION = 'n24_consent_manager_migration_1847';
+    private const MIGRATION_1848_OPTION = 'n24_consent_manager_migration_1848';
+    private const MIGRATION_1849_OPTIONS_OPTION = 'n24_consent_manager_migration_1849_options';
+    private const MIGRATION_1849_PRIVACY_OPTION = 'n24_consent_manager_migration_1849_privacy';
+    private const MIGRATION_1850_OPTIONS_OPTION = 'n24_consent_manager_migration_1850_options';
+    private const MIGRATION_1850_PRIVACY_OPTION = 'n24_consent_manager_migration_1850_privacy';
+    private const MIGRATION_1851_OPTIONS_OPTION = 'n24_consent_manager_migration_1851_options';
+    private const LOG_CLEANUP_OPTION = 'n24_consent_manager_last_log_cleanup';
     private const LEGACY_OPTION_NAMES = [
         'conset_manager_options',
         'conny_consent_manager_options',
@@ -28,6 +37,7 @@ final class N24_Consent_Manager
         'banner_version',
         'privacy_policy_version',
         'dialog_title',
+        'information_title',
         'tab_overview',
         'tab_details',
         'tab_history',
@@ -48,15 +58,21 @@ final class N24_Consent_Manager
         'external_media_inactive_info',
         'info_default',
         'details_intro',
+        'necessary_only_intro',
         'history_intro',
         'consent_id_label',
         'history_empty',
         'reject_button',
+        'necessary_only_button',
         'accept_all_button',
         'save_button',
         'customize_button',
+        'details_button',
         'settings_link',
+        'information_settings_link',
         'floating_aria_label',
+        'information_floating_aria_label',
+        'information_close_button',
         'service_always_on',
         'service_description_label',
         'service_provider_label',
@@ -69,6 +85,8 @@ final class N24_Consent_Manager
         'service_safeguards_label',
         'service_count_single',
         'service_count_plural',
+        'service_details_show_label',
+        'service_details_hide_label',
         'cookie_name_label',
         'cookie_expiry_label',
         'cookie_purpose_label',
@@ -76,6 +94,9 @@ final class N24_Consent_Manager
         'history_status_label',
         'necessary_service_name',
         'necessary_service_purpose',
+        'necessary_only_service_name',
+        'necessary_only_service_purpose',
+        'necessary_only_safeguards',
         'necessary_cookie_expiry',
         'necessary_cookie_type',
         'necessary_cookie_purpose',
@@ -158,6 +179,15 @@ final class N24_Consent_Manager
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
         add_action('admin_menu', [$this, 'add_settings_page']);
         add_action('admin_init', [$this, 'register_settings']);
+        add_action('init', [$this, 'maybe_migrate_options_1846'], 1);
+        add_action('init', [$this, 'maybe_migrate_options_1847'], 1);
+        add_action('init', [$this, 'maybe_migrate_options_1848'], 1);
+        add_action('init', [$this, 'maybe_migrate_options_1849'], 1);
+        add_action('init', [$this, 'maybe_migrate_options_1850'], 1);
+        add_action('init', [$this, 'maybe_migrate_options_1851'], 1);
+        add_action('init', [$this, 'maybe_migrate_privacy_notice_1849'], 2);
+        add_action('init', [$this, 'maybe_migrate_privacy_notice_1850'], 3);
+        add_action('init', [$this, 'maybe_cleanup_expired_consent_logs'], 5);
         add_action('init', [$this, 'maybe_install_consent_log_table']);
         add_action('rest_api_init', [$this, 'register_rest_routes']);
         add_shortcode('n24_consent_settings', [$this, 'render_cookie_settings_shortcode']);
@@ -225,6 +255,467 @@ final class N24_Consent_Manager
         if (get_option(self::LOG_TABLE_VERSION_OPTION) !== self::LOG_TABLE_VERSION) {
             self::install_consent_log_table();
         }
+    }
+
+    public function maybe_migrate_options_1846(): void
+    {
+        if (get_option(self::MIGRATION_1846_OPTION) === '1') {
+            return;
+        }
+
+        $options = get_option(self::OPTION_NAME, []);
+
+        if (!is_array($options)) {
+            update_option(self::MIGRATION_1846_OPTION, '1', false);
+            return;
+        }
+
+        $provider_name = trim((string) ($options['provider_name'] ?? ''));
+        $normalized_provider_name = strtolower((string) preg_replace('/[^a-z]/i', '', $provider_name));
+
+        if (in_array($normalized_provider_name, ['instantvoltenergie', 'instantvoltenergy'], true)) {
+            $options['provider_name'] = 'InstantVOLT-Energy GmbH';
+        }
+
+        $legacy_blocker_text = 'Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.';
+
+        if (($options['content_blocker_text'] ?? '') === $legacy_blocker_text) {
+            $options['content_blocker_text'] = 'Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.';
+        }
+
+        if (is_array($options['content_blocker_service_settings'] ?? null)) {
+            foreach ($options['content_blocker_service_settings'] as &$service_settings) {
+                if (!is_array($service_settings) || !isset($service_settings['text'])) {
+                    continue;
+                }
+
+                $service_settings['text'] = str_replace(
+                    'Durch das Anzeigen akzeptierst du die Nutzungsbedingungen',
+                    'Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen',
+                    (string) $service_settings['text']
+                );
+            }
+            unset($service_settings);
+        }
+
+        $privacy_url = (string) ($options['privacy_url'] ?? '');
+        $privacy_host = strtolower((string) wp_parse_url($privacy_url, PHP_URL_HOST));
+        $home_host = strtolower((string) wp_parse_url(home_url('/'), PHP_URL_HOST));
+        $privacy_page_exists = $privacy_url !== '' && $privacy_host === $home_host && url_to_postid($privacy_url) > 0;
+
+        if (!$privacy_page_exists) {
+            $privacy_path = trim((string) wp_parse_url($privacy_url, PHP_URL_PATH), '/');
+            $privacy_slug = $privacy_path !== '' ? basename($privacy_path) : '';
+            $candidate_slugs = array_values(array_unique(array_filter([
+                $privacy_slug,
+                'datenschutzerklaerung',
+                'datenschutz',
+            ])));
+
+            foreach ($candidate_slugs as $candidate_slug) {
+                $privacy_page = get_page_by_path($candidate_slug, OBJECT, 'page');
+
+                if ($privacy_page instanceof WP_Post) {
+                    $options['privacy_url'] = get_permalink($privacy_page);
+                    break;
+                }
+            }
+        }
+
+        if (in_array((string) ($options['banner_version'] ?? ''), ['', '1.8.45'], true)) {
+            $options['banner_version'] = '1.8.46';
+        }
+        update_option(self::OPTION_NAME, $options, false);
+        update_option(self::MIGRATION_1846_OPTION, '1', false);
+    }
+
+    public function maybe_migrate_options_1847(): void
+    {
+        if (get_option(self::MIGRATION_1847_OPTION) === '1') {
+            return;
+        }
+
+        $options = get_option(self::OPTION_NAME, []);
+
+        if (!is_array($options)) {
+            update_option(self::MIGRATION_1847_OPTION, '1', false);
+            return;
+        }
+
+        if (($options['banner_version'] ?? '') === '1.8.46') {
+            $options['banner_version'] = '1.8.47';
+            update_option(self::OPTION_NAME, $options, false);
+        }
+
+        update_option(self::MIGRATION_1847_OPTION, '1', false);
+    }
+
+    public function maybe_migrate_options_1848(): void
+    {
+        if (get_option(self::MIGRATION_1848_OPTION) === '1') {
+            return;
+        }
+
+        $options = get_option(self::OPTION_NAME, []);
+
+        if (!is_array($options)) {
+            update_option(self::MIGRATION_1848_OPTION, '1', false);
+            return;
+        }
+
+        if (($options['banner_version'] ?? '') === '1.8.47') {
+            $options['banner_version'] = '1.8.48';
+        }
+
+        $old_necessary_only_intro = 'Derzeit werden ausschließlich technisch notwendige Cookies beziehungsweise Speichertechnologien eingesetzt. Diese sind für die Grundfunktionen der Website erforderlich.';
+
+        if (($options['necessary_only_intro'] ?? '') === $old_necessary_only_intro) {
+            $options['necessary_only_intro'] = 'Derzeit werden ausschließlich technisch notwendige Speichertechnologien eingesetzt. Der Consent Manager speichert in diesem Modus keine Auswahl, Consent-ID oder Historie und setzt kein Consent-Cookie.';
+        }
+
+        update_option(self::OPTION_NAME, $options, false);
+        update_option(self::MIGRATION_1848_OPTION, '1', false);
+    }
+
+    public function maybe_migrate_options_1849(): void
+    {
+        if (get_option(self::MIGRATION_1849_OPTIONS_OPTION) === '1') {
+            return;
+        }
+
+        $options = get_option(self::OPTION_NAME, []);
+
+        if (is_array($options) && ($options['banner_version'] ?? '') === '1.8.48') {
+            $options['banner_version'] = '1.8.49';
+            update_option(self::OPTION_NAME, $options, false);
+        }
+
+        update_option(self::MIGRATION_1849_OPTIONS_OPTION, '1', false);
+    }
+
+    public function maybe_migrate_options_1850(): void
+    {
+        if (get_option(self::MIGRATION_1850_OPTIONS_OPTION) === '1') {
+            return;
+        }
+
+        $options = get_option(self::OPTION_NAME, []);
+
+        if (is_array($options) && ($options['banner_version'] ?? '') === '1.8.49') {
+            $options['banner_version'] = '1.8.50';
+            update_option(self::OPTION_NAME, $options, false);
+        }
+
+        update_option(self::MIGRATION_1850_OPTIONS_OPTION, '1', false);
+    }
+
+    public function maybe_migrate_options_1851(): void
+    {
+        if (get_option(self::MIGRATION_1851_OPTIONS_OPTION) === '1') {
+            return;
+        }
+
+        $options = get_option(self::OPTION_NAME, []);
+
+        if (is_array($options)) {
+            if (($options['banner_version'] ?? '') === '1.8.50') {
+                $options['banner_version'] = '1.8.51';
+            }
+
+            $options['privacy_policy_version'] = '2026-07-21.2';
+
+            if (!empty($options['external_media_services']) && is_array($options['external_media_services'])) {
+                foreach ($options['external_media_services'] as &$service) {
+                    if (($service['preset_key'] ?? '') !== 'vimeo') {
+                        continue;
+                    }
+
+                    $service['purpose'] = 'Einbindung und Wiedergabe von Vimeo-Videos nach vorheriger Einwilligung; Vimeo-Player werden mit aktiviertem DNT-Parameter geladen.';
+                    $service['cookies'] = [
+                        [
+                            'name' => 'player_clearance',
+                            'expiry' => '7 Tage',
+                            'type' => 'HTTP Cookie',
+                            'purpose' => 'Schutz des Vimeo-Players vor automatisierten Zugriffen und Missbrauch.',
+                        ],
+                        [
+                            'name' => 'cf_clearance',
+                            'expiry' => '1 Jahr',
+                            'type' => 'HTTP Cookie',
+                            'purpose' => 'Cloudflare-Sicherheitscookie zur Bot-Abwehr.',
+                        ],
+                        [
+                            'name' => '_cf_bm',
+                            'expiry' => '30 Minuten',
+                            'type' => 'HTTP Cookie',
+                            'purpose' => 'Cloudflare Bot Management zur Erkennung automatisierter Zugriffe.',
+                        ],
+                        [
+                            'name' => '_cfuvid',
+                            'expiry' => 'Sitzung',
+                            'type' => 'HTTP Cookie',
+                            'purpose' => 'Cloudflare-Kennung zur Durchsetzung von Zugriffsbeschränkungen und Rate-Limits.',
+                        ],
+                    ];
+                }
+                unset($service);
+            }
+
+            update_option(self::OPTION_NAME, $options, false);
+        }
+
+        update_option(self::MIGRATION_1851_OPTIONS_OPTION, '1', false);
+    }
+
+    public function maybe_migrate_privacy_notice_1849(): void
+    {
+        if (get_option(self::MIGRATION_1849_PRIVACY_OPTION) === '1') {
+            return;
+        }
+
+        $options = $this->get_options();
+        $privacy_page_id = url_to_postid((string) ($options['privacy_url'] ?? ''));
+
+        if ($privacy_page_id <= 0) {
+            foreach (['datenschutz', 'datenschutzerklaerung'] as $privacy_slug) {
+                $privacy_page = get_page_by_path($privacy_slug, OBJECT, 'page');
+
+                if ($privacy_page instanceof WP_Post) {
+                    $privacy_page_id = (int) $privacy_page->ID;
+                    break;
+                }
+            }
+        }
+
+        if ($privacy_page_id <= 0) {
+            return;
+        }
+
+        $privacy_page = get_post($privacy_page_id);
+
+        if (!$privacy_page instanceof WP_Post || $privacy_page->post_type !== 'page') {
+            return;
+        }
+
+        $content = (string) $privacy_page->post_content;
+        $replacement = self::get_privacy_cookie_section_block();
+        $start_marker = '<!-- n24cm-cookie-privacy:start -->';
+        $end_marker = '<!-- n24cm-cookie-privacy:end -->';
+
+        if (strpos($content, $start_marker) !== false && strpos($content, $end_marker) !== false) {
+            $content = (string) preg_replace(
+                '/<!-- wp:html -->\s*<!-- n24cm-cookie-privacy:start -->.*?<!-- n24cm-cookie-privacy:end -->\s*<!-- \/wp:html -->/s',
+                $replacement,
+                $content,
+                1
+            );
+        } else {
+            $cookie_section_start = strpos($content, '<!-- wp:generateblocks/text {"uniqueId":"ds077"');
+            $next_section_start = $cookie_section_start !== false
+                ? strpos($content, '<!-- wp:generateblocks/text {"uniqueId":"ds084"', $cookie_section_start)
+                : false;
+
+            if ($cookie_section_start === false || $next_section_start === false) {
+                return;
+            }
+
+            $content = substr($content, 0, $cookie_section_start)
+                . $replacement
+                . "\n\n"
+                . substr($content, $next_section_start);
+        }
+
+        $updated = wp_update_post(
+            wp_slash([
+                'ID' => $privacy_page_id,
+                'post_content' => $content,
+            ]),
+            true
+        );
+
+        if (is_wp_error($updated)) {
+            return;
+        }
+
+        $saved_content = (string) get_post_field('post_content', $privacy_page_id, 'raw');
+
+        if (strpos($saved_content, $start_marker) === false || strpos($saved_content, $end_marker) === false) {
+            return;
+        }
+
+        update_option(self::MIGRATION_1849_PRIVACY_OPTION, '1', false);
+    }
+
+    public function maybe_migrate_privacy_notice_1850(): void
+    {
+        if (get_option(self::MIGRATION_1850_PRIVACY_OPTION) === '1') {
+            return;
+        }
+
+        $options = $this->get_options();
+        $privacy_page_id = url_to_postid((string) ($options['privacy_url'] ?? ''));
+
+        if ($privacy_page_id <= 0) {
+            foreach (['datenschutz', 'datenschutzerklaerung'] as $privacy_slug) {
+                $privacy_page = get_page_by_path($privacy_slug, OBJECT, 'page');
+
+                if ($privacy_page instanceof WP_Post) {
+                    $privacy_page_id = (int) $privacy_page->ID;
+                    break;
+                }
+            }
+        }
+
+        if ($privacy_page_id <= 0) {
+            return;
+        }
+
+        $privacy_page = get_post($privacy_page_id);
+
+        if (!$privacy_page instanceof WP_Post || $privacy_page->post_type !== 'page') {
+            return;
+        }
+
+        $start_marker = '<!-- n24cm-cookie-privacy:start -->';
+        $end_marker = '<!-- n24cm-cookie-privacy:end -->';
+        $content = (string) $privacy_page->post_content;
+
+        if (substr_count($content, $start_marker) !== 1 || substr_count($content, $end_marker) !== 1) {
+            return;
+        }
+
+        $updated_content = preg_replace(
+            '/<!-- wp:html -->\s*<!-- n24cm-cookie-privacy:start -->.*?<!-- n24cm-cookie-privacy:end -->\s*<!-- \/wp:html -->/s',
+            self::get_privacy_cookie_section_block(),
+            $content,
+            1,
+            $replacement_count
+        );
+
+        if (!is_string($updated_content) || $replacement_count !== 1) {
+            return;
+        }
+
+        $updated = wp_update_post(
+            wp_slash([
+                'ID' => $privacy_page_id,
+                'post_content' => $updated_content,
+            ]),
+            true
+        );
+
+        if (is_wp_error($updated)) {
+            return;
+        }
+
+        $saved_content = (string) get_post_field('post_content', $privacy_page_id, 'raw');
+        $removed_heading = 'Historische Einwilligungsprotokolle früherer Plugin-Versionen';
+        $removed_paragraph_start = 'Frühere Versionen des N24 Consent Managers bis einschließlich Version 1.8.47';
+
+        if (
+            substr_count($saved_content, $start_marker) !== 1
+            || substr_count($saved_content, $end_marker) !== 1
+            || strpos($saved_content, $removed_heading) !== false
+            || strpos($saved_content, $removed_paragraph_start) !== false
+        ) {
+            return;
+        }
+
+        update_option(self::MIGRATION_1850_PRIVACY_OPTION, '1', false);
+    }
+
+    public function maybe_cleanup_expired_consent_logs(): void
+    {
+        $last_cleanup = (int) get_option(self::LOG_CLEANUP_OPTION, 0);
+
+        if ($last_cleanup > time() - DAY_IN_SECONDS) {
+            return;
+        }
+
+        global $wpdb;
+        $table_name = self::get_consent_log_table_name();
+        $table_exists = $wpdb->get_var(
+            $wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table_name))
+        );
+
+        if ($table_exists === $table_name) {
+            $wpdb->query(
+                $wpdb->prepare(
+                    "DELETE FROM {$table_name} WHERE created_at < %s",
+                    gmdate('Y-m-d H:i:s', strtotime('-180 days'))
+                )
+            );
+        }
+
+        update_option(self::LOG_CLEANUP_OPTION, time(), false);
+    }
+
+    private static function get_privacy_cookie_section_block(): string
+    {
+        return <<<'HTML'
+<!-- wp:html -->
+<!-- n24cm-cookie-privacy:start -->
+<section id="technisch-notwendige-cookies" class="n24cm-privacy-cookie-section" aria-labelledby="technisch-notwendige-cookies-heading">
+    <h3 id="technisch-notwendige-cookies-heading">Technisch notwendige Cookies und Speichertechnologien</h3>
+    <p>Diese Website verwendet nur solche Cookies und vergleichbaren Speichertechnologien, die für die Bereitstellung der Website oder einer von Ihnen ausdrücklich angeforderten Funktion technisch erforderlich sind. Für das Speichern und Auslesen unbedingt erforderlicher Informationen ist nach <a href="https://www.gesetze-im-internet.de/ttdsg/__25.html">§ 25 Abs. 2 TDDDG</a> keine Einwilligung erforderlich. Soweit dabei personenbezogene Daten verarbeitet werden, richtet sich die Rechtsgrundlage nach dem jeweiligen Zweck, insbesondere nach Art. 6 Abs. 1 lit. b oder lit. f DSGVO. Die Informationspflichten nach <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016R0679">Art. 13 DSGVO</a> bleiben davon unberührt.</p>
+
+    <h4>Öffentlicher Bereich und N24 Consent Manager</h4>
+    <p>Nach dem technischen Stand vom 18. Juli 2026 werden beim normalen Aufruf der öffentlichen Website keine optionalen Analyse-, Marketing- oder externen Mediendienste geladen. Der N24 Consent Manager arbeitet deshalb im Nur-notwendig-Modus und zeigt keinen automatischen Einwilligungsbanner an.</p>
+    <p>In diesem Modus speichert der N24 Consent Manager keine Auswahl im Local Storage, setzt kein Cookie mit dem Namen <code>n24_consent_manager_consent</code>, erzeugt keine Consent-ID und führt keine Einwilligungshistorie im Browser. Es wird außerdem kein neues Einwilligungsprotokoll an den Server übermittelt. Die manuell aufrufbaren „Cookie-Informationen“ dienen ausschließlich der Information und enthalten nur eine Schließen-Funktion.</p>
+
+    <h4>Bedingt eingesetzte WordPress-Funktionscookies</h4>
+    <p>Die folgenden Cookies werden nicht beim normalen Besuch öffentlicher Seiten gesetzt. Sie können ausschließlich entstehen, wenn eine Person die WordPress-Anmeldeseite aufruft, sich als berechtigter Benutzer anmeldet oder ausdrücklich eine zugehörige Einstellung speichert. Die Namensbestandteile in eckigen Klammern werden installations- beziehungsweise benutzerspezifisch ersetzt.</p>
+    <div class="n24cm-privacy-table-wrap" tabindex="0" aria-label="Tabelle der bedingt eingesetzten WordPress-Funktionscookies">
+        <table class="n24cm-privacy-cookie-table">
+            <caption>Bedingt eingesetzte technisch notwendige WordPress-Cookies</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Anbieter / Domain</th>
+                    <th scope="col">Zeitpunkt</th>
+                    <th scope="col">Zweck und gespeicherte Informationen</th>
+                    <th scope="col">Speicherdauer</th>
+                    <th scope="col">Empfänger</th>
+                    <th scope="col">Rechtsgrundlage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>wordpress_test_cookie</code></td>
+                    <td>WordPress / eigene Domain</td>
+                    <td>Nur beim Aufruf der WordPress-Anmeldeseite</td>
+                    <td>Prüft anhand eines technischen Testwerts, ob der Browser Cookies unterstützt.</td>
+                    <td>Sitzung</td>
+                    <td>InstantVOLT-Energy GmbH und Hosting-Dienstleister im Rahmen des technischen Betriebs</td>
+                    <td>§ 25 Abs. 2 TDDDG; Art. 6 Abs. 1 lit. f DSGVO</td>
+                </tr>
+                <tr>
+                    <td><code>wordpress_logged_in_[Hash]</code><br><code>wordpress_sec_[Hash]</code></td>
+                    <td>WordPress / eigene Domain</td>
+                    <td>Nur nach erfolgreicher Anmeldung eines berechtigten Benutzers</td>
+                    <td>Hält die authentifizierte Sitzung aufrecht und schützt den Zugriff auf nicht öffentliche Verwaltungsfunktionen. Gespeichert werden technische Anmelde- und Sitzungsinformationen.</td>
+                    <td>Sitzung; bei ausdrücklich gewähltem „Angemeldet bleiben“ regelmäßig bis zu 14 Tage</td>
+                    <td>InstantVOLT-Energy GmbH und Hosting-Dienstleister im Rahmen des technischen Betriebs</td>
+                    <td>§ 25 Abs. 2 TDDDG; je nach Benutzerverhältnis Art. 6 Abs. 1 lit. b oder lit. f DSGVO</td>
+                </tr>
+                <tr>
+                    <td><code>wp-settings-[Benutzer-ID]</code><br><code>wp-settings-time-[Benutzer-ID]</code></td>
+                    <td>WordPress / eigene Domain</td>
+                    <td>Nur für angemeldete Benutzer des WordPress-Verwaltungsbereichs</td>
+                    <td>Speichert ausdrücklich gewählte beziehungsweise benutzerbezogene Einstellungen der WordPress-Oberfläche sowie den Zeitpunkt ihrer Speicherung.</td>
+                    <td>Bis zu 1 Jahr</td>
+                    <td>InstantVOLT-Energy GmbH und Hosting-Dienstleister im Rahmen des technischen Betriebs</td>
+                    <td>§ 25 Abs. 2 TDDDG; Art. 6 Abs. 1 lit. f DSGVO</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>Werden später optionale Dienste wie Reichweitenmessung, Marketing oder externe Medien aktiviert, wird diese Übersicht vor deren Einsatz aktualisiert und – soweit erforderlich – eine Einwilligung eingeholt.</p>
+</section>
+<!-- n24cm-cookie-privacy:end -->
+<!-- /wp:html -->
+HTML;
     }
 
     private static function get_consent_log_table_name(): string
@@ -352,6 +843,10 @@ final class N24_Consent_Manager
 
     private function print_anti_flicker_markup(array $settings): void
     {
+        if (!empty($settings['necessaryOnlyMode'])) {
+            return;
+        }
+
         ?>
 <style id="n24-consent-manager-anti-flicker">
 html.consent-pending body > :not(#consent-banner):not(#wpadminbar):not(script):not(style) {
@@ -424,6 +919,12 @@ html.consent-pending #consent-banner * {
     public function handle_consent_log_request(WP_REST_Request $request): WP_REST_Response
     {
         global $wpdb;
+
+        $frontend_settings = $this->get_frontend_settings();
+
+        if (!empty($frontend_settings['necessaryOnlyMode'])) {
+            return new WP_REST_Response(null, 204);
+        }
 
         $payload = $request->get_json_params();
 
@@ -1832,9 +2333,14 @@ html.consent-pending #consent-banner * {
             return '';
         }
 
+        $frontend_settings = $this->get_frontend_settings();
+        $link_text = !empty($frontend_settings['necessaryOnlyMode'])
+            ? $options['information_settings_link']
+            : $options['settings_link'];
+
         return sprintf(
             '<a href="#" class="cookie-settings-link">%s</a>',
-            esc_html($options['settings_link'])
+            esc_html($link_text)
         );
     }
 
@@ -2066,18 +2572,18 @@ html.consent-pending #consent-banner * {
     private function get_contextual_content_blocker_text(array $definition): string
     {
         if (in_array(($definition['key'] ?? ''), ['facebook', 'instagram', 'x'], true)) {
-            return __('Dieser Beitrag wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN);
+            return __('Dieser Beitrag wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN);
         }
 
         if (in_array(($definition['key'] ?? ''), ['google_maps', 'openstreetmap'], true)) {
-            return __('Diese Karte wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN);
+            return __('Diese Karte wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN);
         }
 
         if (in_array(($definition['key'] ?? ''), ['soundcloud', 'spotify'], true)) {
-            return __('Diese Audio-Datei wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN);
+            return __('Diese Audio-Datei wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN);
         }
 
-        return __('Dieses Video wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN);
+        return __('Dieses Video wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN);
     }
 
     private function get_contextual_content_blocker_button(array $definition): string
@@ -2105,6 +2611,7 @@ html.consent-pending #consent-banner * {
             $text,
             [
                 'Dieses Video wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.',
+                'Dieses Video wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.',
                 'This video is loaded from %s. By displaying it, you accept the terms of use of %s.',
             ],
             true
@@ -2120,6 +2627,7 @@ html.consent-pending #consent-banner * {
                 $text,
                 [
                     'Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.',
+                    'Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.',
                     'This external content is loaded from %s. By displaying it, you accept the terms of use of %s.',
                 ],
                 true
@@ -2652,6 +3160,7 @@ html.consent-pending #consent-banner * {
     {
         return [
             'dialog_title' => __('Dialog-Titel', self::TEXT_DOMAIN),
+            'information_title' => __('Titel Cookie-Informationen', self::TEXT_DOMAIN),
             'tab_overview' => __('Tab Übersicht', self::TEXT_DOMAIN),
             'tab_details' => __('Tab Details', self::TEXT_DOMAIN),
             'tab_history' => __('Tab Historie', self::TEXT_DOMAIN),
@@ -2672,15 +3181,21 @@ html.consent-pending #consent-banner * {
             'external_media_inactive_info' => __('Info Externe Medien inaktiv', self::TEXT_DOMAIN),
             'info_default' => __('Info Standard', self::TEXT_DOMAIN),
             'details_intro' => __('Details-Einleitung', self::TEXT_DOMAIN),
+            'necessary_only_intro' => __('Einleitung nur notwendige Cookies', self::TEXT_DOMAIN),
             'history_intro' => __('Historie-Einleitung', self::TEXT_DOMAIN),
             'consent_id_label' => __('Consent-ID Label', self::TEXT_DOMAIN),
             'history_empty' => __('Historie leer', self::TEXT_DOMAIN),
             'reject_button' => __('Button ablehnen', self::TEXT_DOMAIN),
+            'necessary_only_button' => __('Button nur notwendige Cookies', self::TEXT_DOMAIN),
             'accept_all_button' => __('Button akzeptieren', self::TEXT_DOMAIN),
             'save_button' => __('Button speichern', self::TEXT_DOMAIN),
             'customize_button' => __('Button Auswahl anpassen', self::TEXT_DOMAIN),
+            'details_button' => __('Button Details anzeigen', self::TEXT_DOMAIN),
             'settings_link' => __('Link Cookie-Einstellungen', self::TEXT_DOMAIN),
+            'information_settings_link' => __('Link Cookie-Informationen', self::TEXT_DOMAIN),
             'floating_aria_label' => __('Floating-Button ARIA-Label', self::TEXT_DOMAIN),
+            'information_floating_aria_label' => __('Cookie-Informationen ARIA-Label', self::TEXT_DOMAIN),
+            'information_close_button' => __('Button Cookie-Informationen schließen', self::TEXT_DOMAIN),
             'service_always_on' => __('Service immer aktiv', self::TEXT_DOMAIN),
             'service_description_label' => __('Service Beschreibung Label', self::TEXT_DOMAIN),
             'service_provider_label' => __('Service Provider Label', self::TEXT_DOMAIN),
@@ -2693,6 +3208,8 @@ html.consent-pending #consent-banner * {
             'service_safeguards_label' => __('Service Garantien Label', self::TEXT_DOMAIN),
             'service_count_single' => __('Service Anzahl Singular', self::TEXT_DOMAIN),
             'service_count_plural' => __('Service Anzahl Plural', self::TEXT_DOMAIN),
+            'service_details_show_label' => __('ARIA-Label Details anzeigen', self::TEXT_DOMAIN),
+            'service_details_hide_label' => __('ARIA-Label Details ausblenden', self::TEXT_DOMAIN),
             'cookie_name_label' => __('Cookie Name Label', self::TEXT_DOMAIN),
             'cookie_expiry_label' => __('Cookie Laufzeit Label', self::TEXT_DOMAIN),
             'cookie_purpose_label' => __('Cookie Zweck Label', self::TEXT_DOMAIN),
@@ -2700,6 +3217,9 @@ html.consent-pending #consent-banner * {
             'history_status_label' => __('Historie Status Label', self::TEXT_DOMAIN),
             'necessary_service_name' => __('Notwendiger Service Name', self::TEXT_DOMAIN),
             'necessary_service_purpose' => __('Notwendiger Service Zweck', self::TEXT_DOMAIN),
+            'necessary_only_service_name' => __('Nur-notwendig-Funktion Name', self::TEXT_DOMAIN),
+            'necessary_only_service_purpose' => __('Nur-notwendig-Funktion Zweck', self::TEXT_DOMAIN),
+            'necessary_only_safeguards' => __('Nur-notwendig-Speicherhinweis', self::TEXT_DOMAIN),
             'necessary_cookie_expiry' => __('Notwendiger Cookie Laufzeit', self::TEXT_DOMAIN),
             'necessary_cookie_type' => __('Notwendiger Cookie Typ', self::TEXT_DOMAIN),
             'necessary_cookie_purpose' => __('Notwendiger Cookie Zweck', self::TEXT_DOMAIN),
@@ -3379,7 +3899,7 @@ html.consent-pending #consent-banner * {
                     'provider' => $options['provider_name'],
                     'address' => $options['provider_address'],
                     'privacyUrl' => $options['privacy_url'],
-                    'cookiePolicyUrl' => $options['privacy_url'],
+                    'cookiePolicyUrl' => '',
                     'description' => $options['necessary_service_purpose'],
                     'purpose' => $options['necessary_service_purpose'],
                     'legalBasis' => __('Art. 6 Abs. 1 lit. f DSGVO und § 25 Abs. 2 TDDDG', self::TEXT_DOMAIN),
@@ -3403,6 +3923,24 @@ html.consent-pending #consent-banner * {
 
         $services = $this->append_content_blocker_services($services, $options);
         $services = apply_filters('n24_consent_manager_services', $services);
+        $has_optional_services = false;
+
+        foreach (['statistics', 'marketing', 'external_media'] as $optional_category) {
+            if (!empty($services[$optional_category]) && is_array($services[$optional_category])) {
+                $has_optional_services = true;
+                break;
+            }
+        }
+
+        $necessary_only_mode = !$has_optional_services;
+
+        if ($necessary_only_mode && isset($services['necessary'][0])) {
+            $services['necessary'][0]['name'] = $options['necessary_only_service_name'];
+            $services['necessary'][0]['description'] = $options['necessary_only_service_purpose'];
+            $services['necessary'][0]['purpose'] = $options['necessary_only_service_purpose'];
+            $services['necessary'][0]['safeguards'] = $options['necessary_only_safeguards'];
+            $services['necessary'][0]['cookies'] = [];
+        }
 
         return [
             'storageKey' => $storage_key,
@@ -3414,8 +3952,10 @@ html.consent-pending #consent-banner * {
             'providerAddress' => $options['provider_address'],
             'bannerVersion' => $options['banner_version'] ?? self::VERSION,
             'privacyPolicyVersion' => $options['privacy_policy_version'] ?? '',
-            'consentLogEnabled' => true,
-            'consentLogEndpoint' => esc_url_raw(rest_url('n24-consent-manager/v1/consent-log')),
+            'necessaryOnlyMode' => $necessary_only_mode,
+            'consentLogEnabled' => !$necessary_only_mode,
+            'consentLogEndpoint' => $necessary_only_mode ? '' : esc_url_raw(rest_url('n24-consent-manager/v1/consent-log')),
+            'consentLifetimeSeconds' => YEAR_IN_SECONDS,
             'iconSvg' => $options['icon_svg'],
             'boxIconSvg' => $options['box_icon_svg'],
             'floatingIconSvg' => $options['floating_icon_svg'],
@@ -5583,6 +6123,7 @@ html.consent-pending #consent-banner * {
             'content_blocker_embed_titles' => [],
             'content_blocker_service_settings' => [],
             'dialog_title' => __('Datenschutzeinstellungen', self::TEXT_DOMAIN),
+            'information_title' => __('Cookie-Informationen', self::TEXT_DOMAIN),
             'tab_overview' => __('Übersicht', self::TEXT_DOMAIN),
             'tab_details' => __('Details & Cookies', self::TEXT_DOMAIN),
             'tab_history' => __('Historie', self::TEXT_DOMAIN),
@@ -5603,15 +6144,21 @@ html.consent-pending #consent-banner * {
             'external_media_inactive_info' => __('Derzeit sind keine externen Medien aktiv.', self::TEXT_DOMAIN),
             'info_default' => __('Essenziell für die Grundfunktionen der Website.', self::TEXT_DOMAIN),
             'details_intro' => __('Sie können auswählen, welche Kategorien Sie erlauben. Ihre Entscheidung können Sie jederzeit über Cookie-Einstellungen ändern.', self::TEXT_DOMAIN),
+            'necessary_only_intro' => __('Derzeit werden ausschließlich technisch notwendige Speichertechnologien eingesetzt. Der Consent Manager speichert in diesem Modus keine Auswahl, Consent-ID oder Historie und setzt kein Consent-Cookie.', self::TEXT_DOMAIN),
             'history_intro' => __('Hier finden Sie den Verlauf Ihrer Einwilligungen.', self::TEXT_DOMAIN),
             'consent_id_label' => __('Ihre Consent-ID:', self::TEXT_DOMAIN),
             'history_empty' => __('Noch keine Einträge vorhanden.', self::TEXT_DOMAIN),
             'reject_button' => __('Alle ablehnen', self::TEXT_DOMAIN),
+            'necessary_only_button' => __('Nur notwendige Cookies', self::TEXT_DOMAIN),
             'accept_all_button' => __('Alle akzeptieren', self::TEXT_DOMAIN),
             'save_button' => __('Auswahl speichern', self::TEXT_DOMAIN),
             'customize_button' => __('Auswahl anpassen', self::TEXT_DOMAIN),
+            'details_button' => __('Details anzeigen', self::TEXT_DOMAIN),
             'settings_link' => __('Cookie-Einstellungen', self::TEXT_DOMAIN),
+            'information_settings_link' => __('Cookie-Informationen', self::TEXT_DOMAIN),
             'floating_aria_label' => __('Datenschutz-Einstellungen öffnen', self::TEXT_DOMAIN),
+            'information_floating_aria_label' => __('Cookie-Informationen öffnen', self::TEXT_DOMAIN),
+            'information_close_button' => __('Schließen', self::TEXT_DOMAIN),
             'service_always_on' => __('Immer an', self::TEXT_DOMAIN),
             'service_description_label' => __('Beschreibung', self::TEXT_DOMAIN),
             'service_provider_label' => __('Provider', self::TEXT_DOMAIN),
@@ -5624,6 +6171,8 @@ html.consent-pending #consent-banner * {
             'service_safeguards_label' => __('Garantien / Schutzmaßnahmen', self::TEXT_DOMAIN),
             'service_count_single' => __('Service', self::TEXT_DOMAIN),
             'service_count_plural' => __('Services', self::TEXT_DOMAIN),
+            'service_details_show_label' => __('Details zu {category} anzeigen', self::TEXT_DOMAIN),
+            'service_details_hide_label' => __('Details zu {category} ausblenden', self::TEXT_DOMAIN),
             'cookie_name_label' => __('Name', self::TEXT_DOMAIN),
             'cookie_expiry_label' => __('Laufzeit', self::TEXT_DOMAIN),
             'cookie_purpose_label' => __('Zweck', self::TEXT_DOMAIN),
@@ -5631,11 +6180,14 @@ html.consent-pending #consent-banner * {
             'history_status_label' => __('Status', self::TEXT_DOMAIN),
             'necessary_service_name' => __('Consent Manager', self::TEXT_DOMAIN),
             'necessary_service_purpose' => __('Speichert den Zustimmungsstatus des Benutzers für Cookie-Einstellungen.', self::TEXT_DOMAIN),
+            'necessary_only_service_name' => __('Cookie-Informationen', self::TEXT_DOMAIN),
+            'necessary_only_service_purpose' => __('Stellt Informationen zu technisch notwendigen Speichertechnologien bereit. Im Nur-notwendig-Modus werden keine Auswahl, Consent-ID oder Historie gespeichert.', self::TEXT_DOMAIN),
+            'necessary_only_safeguards' => __('Der Consent Manager setzt in diesem Modus kein Consent-Cookie und übermittelt kein Einwilligungsprotokoll an den Server.', self::TEXT_DOMAIN),
             'necessary_cookie_expiry' => __('1 Jahr', self::TEXT_DOMAIN),
             'necessary_cookie_type' => __('Local Storage', self::TEXT_DOMAIN),
             'necessary_cookie_purpose' => __('Technisch notwendig', self::TEXT_DOMAIN),
             'content_blocker_title' => '',
-            'content_blocker_text' => __('Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN),
+            'content_blocker_text' => __('Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptieren Sie die Nutzungsbedingungen von %s.', self::TEXT_DOMAIN),
             'content_blocker_button' => __('Inhalt laden', self::TEXT_DOMAIN),
             'content_blocker_always_button' => __('Immer laden', self::TEXT_DOMAIN),
             'content_blocker_missing_service_text' => __('Der passende Dienst ist im Consent Manager noch nicht aktiv. Bitte aktivieren Sie den Dienst im Backend.', self::TEXT_DOMAIN),
