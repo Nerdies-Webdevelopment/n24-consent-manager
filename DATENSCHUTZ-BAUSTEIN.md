@@ -2,6 +2,8 @@
 
 Dieser Text beschreibt ausschließlich das tatsächliche Verhalten des N24 Consent Managers ab Version 1.8.48, solange keine optionalen Statistik-, Marketing- oder externen Mediendienste aktiv sind. Er ersetzt keine rechtliche Prüfung der vollständigen Datenschutzerklärung.
 
+Das Plugin fügt diesen Text nicht automatisch in WordPress ein und verändert keine Datenschutzseite. Der Baustein darf nur nach manueller Prüfung und bewusster redaktioneller Entscheidung übernommen werden.
+
 ## Formulierungsvorschlag
 
 ### Cookie-Informationen

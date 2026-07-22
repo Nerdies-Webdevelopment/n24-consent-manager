@@ -54,23 +54,15 @@ Sind keine Statistik-, Marketing- oder externen Mediendienste aktiv, arbeitet da
 
 Sobald mindestens ein optionaler Dienst tatsächlich verfügbar ist, wechselt das Plugin automatisch zurück in den vollständigen Consent-Modus mit Banner, Auswahl, Speicherung und Protokollierung. Frühere serverseitige Protokolle werden durch die bestehende technische Aufbewahrungsgrenze automatisch bereinigt.
 
-## Datenschutzerklärung ab Version 1.8.49
+## Seiteninhalte und Anbietername ab Version 1.8.52
 
-Version 1.8.49 ersetzt auf der vorhandenen Datenschutzseite den bisherigen allgemeinen Abschnitt „Cookies“ gezielt durch eine technische Dokumentation. Die Migration:
+Das Plugin legt keine Datenschutzseite an und ändert oder löscht keine Inhalte bestehender Seiten. Die konfigurierte Datenschutz-URL wird ausschließlich als Link im Consent-Dialog verwendet. Der Text aus `DATENSCHUTZ-BAUSTEIN.md` ist nur eine manuelle Arbeitshilfe und wird nicht automatisch eingefügt.
 
-- verwendet ausschließlich die bereits vorhandene Seite aus der konfigurierten Datenschutz-URL beziehungsweise den vorhandenen Slug `datenschutz` oder `datenschutzerklaerung`;
-- legt keine neue Seite an und verändert weder Seiten-ID noch Slug;
-- dokumentiert den speicherfreien Nur-notwendig-Modus und das entfernte Cookie `n24_consent_manager_consent`;
-- führt nur bedingte WordPress-Login- und Einstellungs-Cookies auf, nicht erfundene Shop-, Kommentar-, Analyse- oder Marketing-Cookies;
-- verwendet einen markierten Core-HTML-Block, damit spätere Plugin-Updates denselben Abschnitt aktualisieren können, ohne die übrige Datenschutzerklärung zu überschreiben.
+Frühere Versionen 1.8.49 und 1.8.50 enthielten eine Migration für den Inhalt einer vorhandenen Datenschutzseite. Diese Migration ist ab Version 1.8.52 vollständig entfernt. Bereits durch eine frühere Version eingefügte Inhalte werden nicht automatisch zurückgesetzt, weil auch das ein erneuter Eingriff in die Seite wäre.
 
-Die Migration wird nur als erfolgreich markiert, wenn der neue Abschnitt tatsächlich im gespeicherten Seiteninhalt vorhanden ist. Bei einer abweichenden Seitenstruktur wird nichts überschrieben.
-
-Version 1.8.50 aktualisiert diesen markierten Abschnitt erneut und entfernt daraus den Text zu historischen Einwilligungsprotokollen. Dafür besitzt das Update eine eigene Migrationsmarke, sodass die Löschung auch ausgeführt wird, wenn Version 1.8.49 auf der Zielwebsite bereits installiert war.
+Bekannte ältere InstantVOLT-Anbieterbezeichnungen werden beim Update auf den unter `Einstellungen > Allgemein > Titel der Website` gespeicherten Namen umgestellt. Manuell eingetragene andere Anbieternamen bleiben unverändert. Bei einer Neuinstallation verwendet das Plugin ebenfalls den aktuellen WordPress-Website-Titel.
 
 Version 1.8.51 begrenzt gespeicherte Einwilligungen technisch auf ein Jahr und fordert bei geänderter Banner- oder Datenschutzversion erneut eine Entscheidung an. Beim Wiederherstellen blockierter Vimeo-Einbettungen wird `dnt=1` automatisch an der Player-URL gesetzt. Die Vimeo-Dienstangaben nennen im DNT-Modus die vier von Vimeo ausgewiesenen Sicherheitscookies.
-
-Beim Update werden bekannte ältere InstantVOLT-Anbieterbezeichnungen auf „InstantVOLT-Energy GmbH“ vereinheitlicht. Ein ungültiger oder von einer anderen Domain übernommener Datenschutz-Link wird nur dann auf eine vorhandene lokale Datenschutzseite umgestellt. Das Plugin legt dabei keine Seiten an und überschreibt keine anderweitig angepassten Seitentexte.
 
 ## Dienste erweitern
 

@@ -22,67 +22,6 @@
     box-sizing: border-box;
 }
 
-/* Privacy-page documentation maintained by versioned migrations. */
-.n24cm-privacy-cookie-section {
-    margin-block: 2rem;
-}
-
-.n24cm-privacy-cookie-section h3,
-.n24cm-privacy-cookie-section h4 {
-    scroll-margin-top: 6rem;
-}
-
-.n24cm-privacy-cookie-section h4 {
-    margin-top: 1.5rem;
-}
-
-.n24cm-privacy-table-wrap {
-    max-width: 100%;
-    margin-block: 1rem 1.5rem;
-    overflow-x: auto;
-    border: 1px solid #cbd5e1;
-    border-radius: 0.5rem;
-}
-
-.n24cm-privacy-table-wrap:focus-visible {
-    outline: 3px solid var(--ccm-color-accent, #a67c00);
-    outline-offset: 3px;
-}
-
-.n24cm-privacy-cookie-table {
-    width: 100%;
-    min-width: 70rem;
-    border-collapse: collapse;
-    background: #ffffff;
-    color: #111827;
-    font-size: 0.9375rem;
-    line-height: 1.55;
-}
-
-.n24cm-privacy-cookie-table caption {
-    padding: 0.875rem 1rem;
-    background: #f8fafc;
-    font-weight: 700;
-    text-align: left;
-}
-
-.n24cm-privacy-cookie-table th,
-.n24cm-privacy-cookie-table td {
-    padding: 0.75rem;
-    border-top: 1px solid #e2e8f0;
-    vertical-align: top;
-    text-align: left;
-}
-
-.n24cm-privacy-cookie-table th {
-    background: #f8fafc;
-    font-weight: 700;
-}
-
-.n24cm-privacy-cookie-table code {
-    overflow-wrap: anywhere;
-}
-
 .consent-floating-btn *,
 .consent-floating-btn *::before,
 .consent-floating-btn *::after,

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: N24 Consent Manager
  * Description: Consent- und Cookie-Informationen mit einstellbaren Farben, Icon und Texten.
- * Version: 1.8.51
+ * Version: 1.8.52
  * Author: Nerdies24
  * Text Domain: n24-consent-manager
  * Domain Path: /languages
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 
 final class N24_Consent_Manager
 {
-    private const VERSION = '1.8.51';
+    private const VERSION = '1.8.52';
     private const TEXT_DOMAIN = 'n24-consent-manager';
     private const OPTION_NAME = 'n24_consent_manager_options';
     private const LOG_TABLE_VERSION = '1.0';
@@ -23,10 +23,9 @@ final class N24_Consent_Manager
     private const MIGRATION_1847_OPTION = 'n24_consent_manager_migration_1847';
     private const MIGRATION_1848_OPTION = 'n24_consent_manager_migration_1848';
     private const MIGRATION_1849_OPTIONS_OPTION = 'n24_consent_manager_migration_1849_options';
-    private const MIGRATION_1849_PRIVACY_OPTION = 'n24_consent_manager_migration_1849_privacy';
     private const MIGRATION_1850_OPTIONS_OPTION = 'n24_consent_manager_migration_1850_options';
-    private const MIGRATION_1850_PRIVACY_OPTION = 'n24_consent_manager_migration_1850_privacy';
     private const MIGRATION_1851_OPTIONS_OPTION = 'n24_consent_manager_migration_1851_options';
+    private const MIGRATION_1852_OPTIONS_OPTION = 'n24_consent_manager_migration_1852_options';
     private const LOG_CLEANUP_OPTION = 'n24_consent_manager_last_log_cleanup';
     private const LEGACY_OPTION_NAMES = [
         'conset_manager_options',
@@ -185,8 +184,7 @@ final class N24_Consent_Manager
         add_action('init', [$this, 'maybe_migrate_options_1849'], 1);
         add_action('init', [$this, 'maybe_migrate_options_1850'], 1);
         add_action('init', [$this, 'maybe_migrate_options_1851'], 1);
-        add_action('init', [$this, 'maybe_migrate_privacy_notice_1849'], 2);
-        add_action('init', [$this, 'maybe_migrate_privacy_notice_1850'], 3);
+        add_action('init', [$this, 'maybe_migrate_options_1852'], 1);
         add_action('init', [$this, 'maybe_cleanup_expired_consent_logs'], 5);
         add_action('init', [$this, 'maybe_install_consent_log_table']);
         add_action('rest_api_init', [$this, 'register_rest_routes']);
@@ -274,7 +272,11 @@ final class N24_Consent_Manager
         $normalized_provider_name = strtolower((string) preg_replace('/[^a-z]/i', '', $provider_name));
 
         if (in_array($normalized_provider_name, ['instantvoltenergie', 'instantvoltenergy'], true)) {
-            $options['provider_name'] = 'InstantVOLT-Energy GmbH';
+            $site_name = sanitize_text_field((string) get_bloginfo('name'));
+
+            if ($site_name !== '') {
+                $options['provider_name'] = $site_name;
+            }
         }
 
         $legacy_blocker_text = 'Dieser externe Inhalt wird von %s geladen. Durch das Anzeigen akzeptierst du die Nutzungsbedingungen von %s.';
@@ -467,161 +469,37 @@ final class N24_Consent_Manager
         update_option(self::MIGRATION_1851_OPTIONS_OPTION, '1', false);
     }
 
-    public function maybe_migrate_privacy_notice_1849(): void
+    public function maybe_migrate_options_1852(): void
     {
-        if (get_option(self::MIGRATION_1849_PRIVACY_OPTION) === '1') {
+        if (get_option(self::MIGRATION_1852_OPTIONS_OPTION) === '1') {
             return;
         }
 
-        $options = $this->get_options();
-        $privacy_page_id = url_to_postid((string) ($options['privacy_url'] ?? ''));
+        $options = get_option(self::OPTION_NAME, []);
 
-        if ($privacy_page_id <= 0) {
-            foreach (['datenschutz', 'datenschutzerklaerung'] as $privacy_slug) {
-                $privacy_page = get_page_by_path($privacy_slug, OBJECT, 'page');
+        if (is_array($options)) {
+            $provider_name = trim((string) ($options['provider_name'] ?? ''));
+            $normalized_provider_name = strtolower((string) preg_replace('/[^a-z]/i', '', $provider_name));
+            $legacy_provider_names = [
+                'instantvoltenergie',
+                'instantvoltenergy',
+                'instantvoltenergiegmbh',
+                'instantvoltenergygmbh',
+            ];
+            $site_name = sanitize_text_field((string) get_bloginfo('name'));
 
-                if ($privacy_page instanceof WP_Post) {
-                    $privacy_page_id = (int) $privacy_page->ID;
-                    break;
-                }
-            }
-        }
-
-        if ($privacy_page_id <= 0) {
-            return;
-        }
-
-        $privacy_page = get_post($privacy_page_id);
-
-        if (!$privacy_page instanceof WP_Post || $privacy_page->post_type !== 'page') {
-            return;
-        }
-
-        $content = (string) $privacy_page->post_content;
-        $replacement = self::get_privacy_cookie_section_block();
-        $start_marker = '<!-- n24cm-cookie-privacy:start -->';
-        $end_marker = '<!-- n24cm-cookie-privacy:end -->';
-
-        if (strpos($content, $start_marker) !== false && strpos($content, $end_marker) !== false) {
-            $content = (string) preg_replace(
-                '/<!-- wp:html -->\s*<!-- n24cm-cookie-privacy:start -->.*?<!-- n24cm-cookie-privacy:end -->\s*<!-- \/wp:html -->/s',
-                $replacement,
-                $content,
-                1
-            );
-        } else {
-            $cookie_section_start = strpos($content, '<!-- wp:generateblocks/text {"uniqueId":"ds077"');
-            $next_section_start = $cookie_section_start !== false
-                ? strpos($content, '<!-- wp:generateblocks/text {"uniqueId":"ds084"', $cookie_section_start)
-                : false;
-
-            if ($cookie_section_start === false || $next_section_start === false) {
-                return;
+            if ($site_name !== '' && in_array($normalized_provider_name, $legacy_provider_names, true)) {
+                $options['provider_name'] = $site_name;
             }
 
-            $content = substr($content, 0, $cookie_section_start)
-                . $replacement
-                . "\n\n"
-                . substr($content, $next_section_start);
-        }
-
-        $updated = wp_update_post(
-            wp_slash([
-                'ID' => $privacy_page_id,
-                'post_content' => $content,
-            ]),
-            true
-        );
-
-        if (is_wp_error($updated)) {
-            return;
-        }
-
-        $saved_content = (string) get_post_field('post_content', $privacy_page_id, 'raw');
-
-        if (strpos($saved_content, $start_marker) === false || strpos($saved_content, $end_marker) === false) {
-            return;
-        }
-
-        update_option(self::MIGRATION_1849_PRIVACY_OPTION, '1', false);
-    }
-
-    public function maybe_migrate_privacy_notice_1850(): void
-    {
-        if (get_option(self::MIGRATION_1850_PRIVACY_OPTION) === '1') {
-            return;
-        }
-
-        $options = $this->get_options();
-        $privacy_page_id = url_to_postid((string) ($options['privacy_url'] ?? ''));
-
-        if ($privacy_page_id <= 0) {
-            foreach (['datenschutz', 'datenschutzerklaerung'] as $privacy_slug) {
-                $privacy_page = get_page_by_path($privacy_slug, OBJECT, 'page');
-
-                if ($privacy_page instanceof WP_Post) {
-                    $privacy_page_id = (int) $privacy_page->ID;
-                    break;
-                }
+            if (($options['banner_version'] ?? '') === '1.8.51') {
+                $options['banner_version'] = '1.8.52';
             }
+
+            update_option(self::OPTION_NAME, $options, false);
         }
 
-        if ($privacy_page_id <= 0) {
-            return;
-        }
-
-        $privacy_page = get_post($privacy_page_id);
-
-        if (!$privacy_page instanceof WP_Post || $privacy_page->post_type !== 'page') {
-            return;
-        }
-
-        $start_marker = '<!-- n24cm-cookie-privacy:start -->';
-        $end_marker = '<!-- n24cm-cookie-privacy:end -->';
-        $content = (string) $privacy_page->post_content;
-
-        if (substr_count($content, $start_marker) !== 1 || substr_count($content, $end_marker) !== 1) {
-            return;
-        }
-
-        $updated_content = preg_replace(
-            '/<!-- wp:html -->\s*<!-- n24cm-cookie-privacy:start -->.*?<!-- n24cm-cookie-privacy:end -->\s*<!-- \/wp:html -->/s',
-            self::get_privacy_cookie_section_block(),
-            $content,
-            1,
-            $replacement_count
-        );
-
-        if (!is_string($updated_content) || $replacement_count !== 1) {
-            return;
-        }
-
-        $updated = wp_update_post(
-            wp_slash([
-                'ID' => $privacy_page_id,
-                'post_content' => $updated_content,
-            ]),
-            true
-        );
-
-        if (is_wp_error($updated)) {
-            return;
-        }
-
-        $saved_content = (string) get_post_field('post_content', $privacy_page_id, 'raw');
-        $removed_heading = 'Historische Einwilligungsprotokolle früherer Plugin-Versionen';
-        $removed_paragraph_start = 'Frühere Versionen des N24 Consent Managers bis einschließlich Version 1.8.47';
-
-        if (
-            substr_count($saved_content, $start_marker) !== 1
-            || substr_count($saved_content, $end_marker) !== 1
-            || strpos($saved_content, $removed_heading) !== false
-            || strpos($saved_content, $removed_paragraph_start) !== false
-        ) {
-            return;
-        }
-
-        update_option(self::MIGRATION_1850_PRIVACY_OPTION, '1', false);
+        update_option(self::MIGRATION_1852_OPTIONS_OPTION, '1', false);
     }
 
     public function maybe_cleanup_expired_consent_logs(): void
@@ -648,74 +526,6 @@ final class N24_Consent_Manager
         }
 
         update_option(self::LOG_CLEANUP_OPTION, time(), false);
-    }
-
-    private static function get_privacy_cookie_section_block(): string
-    {
-        return <<<'HTML'
-<!-- wp:html -->
-<!-- n24cm-cookie-privacy:start -->
-<section id="technisch-notwendige-cookies" class="n24cm-privacy-cookie-section" aria-labelledby="technisch-notwendige-cookies-heading">
-    <h3 id="technisch-notwendige-cookies-heading">Technisch notwendige Cookies und Speichertechnologien</h3>
-    <p>Diese Website verwendet nur solche Cookies und vergleichbaren Speichertechnologien, die für die Bereitstellung der Website oder einer von Ihnen ausdrücklich angeforderten Funktion technisch erforderlich sind. Für das Speichern und Auslesen unbedingt erforderlicher Informationen ist nach <a href="https://www.gesetze-im-internet.de/ttdsg/__25.html">§ 25 Abs. 2 TDDDG</a> keine Einwilligung erforderlich. Soweit dabei personenbezogene Daten verarbeitet werden, richtet sich die Rechtsgrundlage nach dem jeweiligen Zweck, insbesondere nach Art. 6 Abs. 1 lit. b oder lit. f DSGVO. Die Informationspflichten nach <a href="https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016R0679">Art. 13 DSGVO</a> bleiben davon unberührt.</p>
-
-    <h4>Öffentlicher Bereich und N24 Consent Manager</h4>
-    <p>Nach dem technischen Stand vom 18. Juli 2026 werden beim normalen Aufruf der öffentlichen Website keine optionalen Analyse-, Marketing- oder externen Mediendienste geladen. Der N24 Consent Manager arbeitet deshalb im Nur-notwendig-Modus und zeigt keinen automatischen Einwilligungsbanner an.</p>
-    <p>In diesem Modus speichert der N24 Consent Manager keine Auswahl im Local Storage, setzt kein Cookie mit dem Namen <code>n24_consent_manager_consent</code>, erzeugt keine Consent-ID und führt keine Einwilligungshistorie im Browser. Es wird außerdem kein neues Einwilligungsprotokoll an den Server übermittelt. Die manuell aufrufbaren „Cookie-Informationen“ dienen ausschließlich der Information und enthalten nur eine Schließen-Funktion.</p>
-
-    <h4>Bedingt eingesetzte WordPress-Funktionscookies</h4>
-    <p>Die folgenden Cookies werden nicht beim normalen Besuch öffentlicher Seiten gesetzt. Sie können ausschließlich entstehen, wenn eine Person die WordPress-Anmeldeseite aufruft, sich als berechtigter Benutzer anmeldet oder ausdrücklich eine zugehörige Einstellung speichert. Die Namensbestandteile in eckigen Klammern werden installations- beziehungsweise benutzerspezifisch ersetzt.</p>
-    <div class="n24cm-privacy-table-wrap" tabindex="0" aria-label="Tabelle der bedingt eingesetzten WordPress-Funktionscookies">
-        <table class="n24cm-privacy-cookie-table">
-            <caption>Bedingt eingesetzte technisch notwendige WordPress-Cookies</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Anbieter / Domain</th>
-                    <th scope="col">Zeitpunkt</th>
-                    <th scope="col">Zweck und gespeicherte Informationen</th>
-                    <th scope="col">Speicherdauer</th>
-                    <th scope="col">Empfänger</th>
-                    <th scope="col">Rechtsgrundlage</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>wordpress_test_cookie</code></td>
-                    <td>WordPress / eigene Domain</td>
-                    <td>Nur beim Aufruf der WordPress-Anmeldeseite</td>
-                    <td>Prüft anhand eines technischen Testwerts, ob der Browser Cookies unterstützt.</td>
-                    <td>Sitzung</td>
-                    <td>InstantVOLT-Energy GmbH und Hosting-Dienstleister im Rahmen des technischen Betriebs</td>
-                    <td>§ 25 Abs. 2 TDDDG; Art. 6 Abs. 1 lit. f DSGVO</td>
-                </tr>
-                <tr>
-                    <td><code>wordpress_logged_in_[Hash]</code><br><code>wordpress_sec_[Hash]</code></td>
-                    <td>WordPress / eigene Domain</td>
-                    <td>Nur nach erfolgreicher Anmeldung eines berechtigten Benutzers</td>
-                    <td>Hält die authentifizierte Sitzung aufrecht und schützt den Zugriff auf nicht öffentliche Verwaltungsfunktionen. Gespeichert werden technische Anmelde- und Sitzungsinformationen.</td>
-                    <td>Sitzung; bei ausdrücklich gewähltem „Angemeldet bleiben“ regelmäßig bis zu 14 Tage</td>
-                    <td>InstantVOLT-Energy GmbH und Hosting-Dienstleister im Rahmen des technischen Betriebs</td>
-                    <td>§ 25 Abs. 2 TDDDG; je nach Benutzerverhältnis Art. 6 Abs. 1 lit. b oder lit. f DSGVO</td>
-                </tr>
-                <tr>
-                    <td><code>wp-settings-[Benutzer-ID]</code><br><code>wp-settings-time-[Benutzer-ID]</code></td>
-                    <td>WordPress / eigene Domain</td>
-                    <td>Nur für angemeldete Benutzer des WordPress-Verwaltungsbereichs</td>
-                    <td>Speichert ausdrücklich gewählte beziehungsweise benutzerbezogene Einstellungen der WordPress-Oberfläche sowie den Zeitpunkt ihrer Speicherung.</td>
-                    <td>Bis zu 1 Jahr</td>
-                    <td>InstantVOLT-Energy GmbH und Hosting-Dienstleister im Rahmen des technischen Betriebs</td>
-                    <td>§ 25 Abs. 2 TDDDG; Art. 6 Abs. 1 lit. f DSGVO</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <p>Werden später optionale Dienste wie Reichweitenmessung, Marketing oder externe Medien aktiviert, wird diese Übersicht vor deren Einsatz aktualisiert und – soweit erforderlich – eine Einwilligung eingeholt.</p>
-</section>
-<!-- n24cm-cookie-privacy:end -->
-<!-- /wp:html -->
-HTML;
     }
 
     private static function get_consent_log_table_name(): string
