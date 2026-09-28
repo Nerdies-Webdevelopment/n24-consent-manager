@@ -37,9 +37,9 @@
     left: 2rem;
     width: 3.5rem;
     height: 3.5rem;
-    background: transparent !important;
+    background: var(--ccm-color-floating-bg) !important;
     border: none !important;
-    border-radius: 0;
+    border-radius: 50%;
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -48,12 +48,12 @@
     transition: all var(--ccm-transition-base);
     box-shadow: none !important;
     cursor: pointer;
-    padding: 0;
+    padding: 8px;
     outline: none;
 }
 
 .consent-floating-btn:hover {
-    background: transparent !important;
+    background: var(--ccm-color-floating-hover-bg) !important;
     color: var(--ccm-color-floating-icon) !important;
     box-shadow: none !important;
     transform: scale(1.1);
@@ -61,7 +61,7 @@
 
 .consent-floating-btn:focus,
 .consent-floating-btn:active {
-    background: transparent !important;
+    background: var(--ccm-color-floating-hover-bg) !important;
     color: var(--ccm-color-floating-icon) !important;
     border: none !important;
     box-shadow: none !important;
@@ -74,7 +74,7 @@
 
 .consent-floating-btn:hover:focus,
 .consent-floating-btn:hover:active {
-    background: transparent !important;
+    background: var(--ccm-color-floating-hover-bg) !important;
     color: var(--ccm-color-floating-icon) !important;
     box-shadow: none !important;
 }
@@ -138,7 +138,7 @@
 .consent-banner .consent-tabs {
     display: flex;
     gap: 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--ccm-color-border);
 }
 
 .consent-banner .tab-btn {
@@ -381,6 +381,7 @@
 
 .consent-banner .cookie-table-wrap {
     width: 100%;
+    overflow-x: auto;
 }
 
 .consent-banner .cookie-table {
@@ -615,7 +616,7 @@
 }
 
 .consent-banner .fs-1-5 {
-    font-size: 1.5rem !important;
+    font-size: 1.5rem;
 }
 
 .consent-banner .flex-align-center {
@@ -915,5 +916,45 @@ iframe[src*="instagram.com"] {
 
     .consent-banner .consent-actions {
         flex-direction: column !important;
+    }
+}
+
+/* Keep keyboard focus visible on custom checkbox and switch graphics. */
+.consent-banner :is(button, a):focus-visible {
+    outline: 2px solid var(--ccm-color-accent);
+    outline-offset: 3px;
+}
+.consent-banner input:focus-visible + :is(.checkbox-visual, .switch-visual) {
+    outline: 2px solid var(--ccm-color-accent);
+    outline-offset: 3px;
+}
+.consent-banner [hidden] {
+    display: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+    .consent-banner, .consent-banner *, .consent-banner *::after, .consent-floating-btn {
+        transition: none !important;
+        animation: none !important;
+    }
+    .consent-banner .consent-content, .consent-floating-btn:hover,
+    .consent-banner .consent-content .btn-primary:hover, .consent-banner .consent-info-display.active {
+        transform: none;
+    }
+}
+
+/* Long translated dialog titles must fit beside the icon on narrow screens. */
+.consent-banner .consent-header .flex-align-center {
+    min-width: 0;
+}
+.consent-banner .consent-header h2 {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 480px) {
+    .consent-banner .consent-content h2 {
+        font-size: 1.2rem;
+    }
+    .consent-banner .consent-tabs {
+        gap: 0.5rem;
     }
 }

@@ -250,30 +250,43 @@ const ConsentManager = {
     },
 
     loadConsent() {
-        const stored = localStorage.getItem(this.storageKey);
-        if (stored) {
-            try {
-                this.consent = JSON.parse(stored);
-                const timestamp = Date.parse(this.consent.timestamp || '');
-                const lifetimeMilliseconds = this.getConsentLifetimeSeconds() * 1000;
-                const versionChanged = (this.consent.bannerVersion || '') !== (settings.bannerVersion || '')
-                    || (this.consent.privacyPolicyVersion || '') !== (settings.privacyPolicyVersion || '');
-
-                if (!Number.isFinite(timestamp) || Date.now() - timestamp >= lifetimeMilliseconds || versionChanged) {
-                    this.clearStoredConsent();
-                    return;
-                }
-
-                if (!this.consent.services) this.consent.services = {};
-                if (!this.consent.history) this.consent.history = [];
-                this.getOptionalCategories().forEach(category => {
-                    if (typeof this.consent[category] === 'undefined') {
-                        this.consent[category] = false;
-                    }
-                });
-            } catch (error) {
-                localStorage.removeItem(this.storageKey);
+        try {
+            const stored = localStorage.getItem(this.storageKey);
+            if (!stored) return;
+            const consent = JSON.parse(stored);
+            if (!consent || typeof consent !== 'object' || Array.isArray(consent)) {
+                this.clearStoredConsent();
+                return;
             }
+            const timestamp = Date.parse(consent.timestamp || '');
+            const versionChanged = (consent.bannerVersion || '') !== (settings.bannerVersion || '')
+                || (consent.privacyPolicyVersion || '') !== (settings.privacyPolicyVersion || '');
+            if (!Number.isFinite(timestamp) || timestamp > Date.now() + 60000
+                || Date.now() - timestamp >= this.getConsentLifetimeSeconds() * 1000 || versionChanged) {
+                this.clearStoredConsent();
+                return;
+            }
+            const services = consent.services && typeof consent.services === 'object' && !Array.isArray(consent.services)
+                ? Object.fromEntries(Object.entries(consent.services).map(([id, allowed]) => [id, allowed === true])) : {};
+            this.consent = {
+                ...this.consent,
+                necessary: true,
+                uid: typeof consent.uid === 'string' ? consent.uid : null,
+                timestamp: consent.timestamp,
+                bannerVersion: consent.bannerVersion,
+                privacyPolicyVersion: consent.privacyPolicyVersion,
+                services,
+                history: Array.isArray(consent.history) ? consent.history.filter(entry => (
+                    entry && typeof entry === 'object' && entry.settings && typeof entry.settings === 'object'
+                    && Number.isFinite(Date.parse(entry.timestamp))
+                )).slice(0, 10) : []
+            };
+            this.getOptionalCategories().forEach(category => {
+                this.consent[category] = consent[category] === true;
+            });
+        } catch (error) {
+            // Restricted or corrupt storage must never prevent the consent UI from opening.
+            this.clearStoredConsent();
         }
     },
 
@@ -303,7 +316,20 @@ const ConsentManager = {
     },
 
     saveToStorage() {
-        localStorage.setItem(this.storageKey, JSON.stringify(this.consent));
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(this.consent));
+        } catch (error) {
+            // Keep the current page choice in memory; ask again on the next visit.
+        }
+    },
+
+    writeConsentCookie() {
+        try {
+            const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+            document.cookie = `${encodeURIComponent(settings.cookieName)}=1; path=/; max-age=${this.getConsentLifetimeSeconds()}; SameSite=Lax${secure}`;
+        } catch (error) {
+            // Cookie restrictions must not interrupt saving or closing the dialog.
+        }
     },
 
     getConsentLifetimeSeconds() {
@@ -365,13 +391,17 @@ const ConsentManager = {
         }
 
         this.consent.services = serviceConsent;
-        this.saveToStorage();
         logEntry.services = { ...serviceConsent };
+        this.saveToStorage();
         this.sendConsentLog(logEntry);
+        const revokedLoadedScript = this.getAllOptionalServices().some(({ service }) => (
+            this.loadedServiceEmbeds[service.id] && previousServiceConsent[service.id] === true
+            && serviceConsent[service.id] !== true
+        ));
         this.executeRevokedServiceOptOut(previousServiceConsent, serviceConsent);
-        document.cookie = `${encodeURIComponent(settings.cookieName)}=1; path=/; max-age=${this.getConsentLifetimeSeconds()}; SameSite=Lax`;
-        const shouldReloadAfterRevocation = this.hasLoadedBlockedContent()
-            && this.getAllOptionalServices().some(({ service }) => this.consent.services[service.id] === false);
+        this.writeConsentCookie();
+        const shouldReloadAfterRevocation = revokedLoadedScript || (this.hasLoadedBlockedContent()
+            && this.getAllOptionalServices().some(({ service }) => this.consent.services[service.id] === false));
 
         if (shouldReloadAfterRevocation) {
             document.documentElement.classList.remove('consent-pending');
@@ -398,10 +428,11 @@ const ConsentManager = {
         if (category === 'necessary') return true;
 
         if (this.consent.services && Object.prototype.hasOwnProperty.call(this.consent.services, service.id)) {
-            return Boolean(this.consent.services[service.id]);
+            return this.consent[category] === true && this.consent.services[service.id] === true;
         }
 
-        return Boolean(this.consent[category]);
+        // A category choice must not silently approve a newly added or unrelated service.
+        return false;
     },
 
     findService(serviceId, category = null) {
@@ -624,13 +655,14 @@ const ConsentManager = {
             ...this.consent,
             necessary: true,
             [match.category]: true,
+            bannerVersion: settings.bannerVersion || '',
+            privacyPolicyVersion: settings.privacyPolicyVersion || '',
             timestamp: now
         };
 
-        this.consent.services = {
-            ...(this.consent.services || {}),
-            [serviceId]: true
-        };
+        this.consent.services = Object.fromEntries(this.getAllOptionalServices().map(({ service }) => [
+            service.id, service.id === serviceId || this.consent.services?.[service.id] === true
+        ]));
 
         this.consent.history = this.consent.history || [];
         this.consent.history.unshift({
@@ -662,7 +694,7 @@ const ConsentManager = {
         if (this.consent.history.length > 10) this.consent.history.pop();
 
         this.saveToStorage();
-        document.cookie = `${encodeURIComponent(settings.cookieName)}=1; path=/; max-age=${this.getConsentLifetimeSeconds()}; SameSite=Lax`;
+        this.writeConsentCookie();
         this.applyConsent();
         this.updateCheckboxState();
     },
@@ -971,7 +1003,7 @@ const ConsentManager = {
               <div class="service-item">
                 <div class="service-item-header">
                    <div class="service-name-text">${escapeHTML(s.name)}</div>
-                   <label class="service-selection">
+                   <label class="service-selection" aria-label="${escapeHTML(s.name)}">
                      <span class="text-muted-small">${isNecessary ? text('service_always_on') : ''}</span>
                      <input type="checkbox" class="service-checkbox" data-cat="${cat}" data-id="${escapeHTML(s.id)}" ${isNecessary ? 'checked disabled' : ''}>
                      <span class="switch-visual"></span>
@@ -984,7 +1016,7 @@ const ConsentManager = {
                    <div class="meta-value">
                      ${escapeHTML(s.provider)}<br>
                      <small class="text-muted-small">${escapeHTML(s.address || '')}</small><br>
-                     <a href="${escapeHTML(s.privacyUrl || '#')}" class="link-muted">${text('service_privacy_label')}</a>
+                     ${s.privacyUrl ? `<a href="${escapeHTML(s.privacyUrl)}" class="link-muted">${text('service_privacy_label')}</a>` : ''}
                      ${s.cookiePolicyUrl && s.cookiePolicyUrl !== s.privacyUrl ? `<br><a href="${escapeHTML(s.cookiePolicyUrl)}" class="link-muted">${text('service_cookie_policy_label')}</a>` : ''}
                    </div>
                    <div class="meta-label">${text('service_legal_basis_label')}</div>
@@ -1095,14 +1127,14 @@ const ConsentManager = {
     },
 
     activateTab(tabName) {
-        const tab = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+        const tab = document.querySelector(`#consent-banner .tab-btn[data-tab="${tabName}"]`);
         const target = document.getElementById(`view-${tabName}`);
 
         if (!tab || !target) return;
 
-        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('#consent-banner .tab-btn').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        document.querySelectorAll('.consent-view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('#consent-banner .consent-view').forEach(v => v.classList.remove('active'));
         target.classList.add('active');
 
         const customizeButton = document.getElementById('consent-customize');
@@ -1123,7 +1155,7 @@ const ConsentManager = {
     },
 
     bindTabs() {
-        const tabs = document.querySelectorAll('.tab-btn');
+        const tabs = document.querySelectorAll('#consent-banner .tab-btn');
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 this.activateTab(tab.dataset.tab);
@@ -1165,7 +1197,7 @@ const ConsentManager = {
             banner.classList.remove('visible');
             setTimeout(() => {
                 banner.remove();
-                if (this.previousActiveElement) this.previousActiveElement.focus();
+                if (this.previousActiveElement?.isConnected) this.previousActiveElement.focus();
             }, 400);
         }
     },
@@ -1217,7 +1249,10 @@ const ConsentManager = {
                 const first = focusable[0];
                 const last = focusable[focusable.length - 1];
 
-                if (e.shiftKey) {
+                if (document.activeElement === banner || !banner.contains(document.activeElement)) {
+                    e.preventDefault();
+                    (e.shiftKey ? last : first).focus();
+                } else if (e.shiftKey) {
                     if (document.activeElement === first) {
                         e.preventDefault();
                         last.focus();
@@ -1235,7 +1270,7 @@ const ConsentManager = {
         });
 
         setTimeout(() => {
-            if (banner) banner.focus({ preventScroll: true });
+            if (banner?.isConnected && banner.classList.contains('visible')) banner.focus({ preventScroll: true });
         }, 600);
     },
 

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: N24 Consent Manager
  * Description: Consent- und Cookie-Informationen mit einstellbaren Farben, Icon und Texten.
- * Version: 1.8.52
+ * Version: 1.8.53
  * Author: Nerdies24
  * Text Domain: n24-consent-manager
  * Domain Path: /languages
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 
 final class N24_Consent_Manager
 {
-    private const VERSION = '1.8.52';
+    private const VERSION = '1.8.53';
     private const TEXT_DOMAIN = 'n24-consent-manager';
     private const OPTION_NAME = 'n24_consent_manager_options';
     private const LOG_TABLE_VERSION = '1.0';
@@ -736,10 +736,33 @@ html.consent-pending #consent-banner * {
             return new WP_REST_Response(null, 204);
         }
 
+        if (!$this->is_plugin_enabled()) {
+            return new WP_REST_Response(null, 204);
+        }
+        if (strlen($request->get_body()) > 65536) {
+            return new WP_REST_Response(['success' => false], 413);
+        }
         $payload = $request->get_json_params();
-
-        if (!is_array($payload)) {
+        if (!is_array($payload) || !is_string($payload['uid'] ?? null)
+            || !preg_match('/^[a-z0-9_-]{1,64}$/i', $payload['uid'])
+            || !is_array($payload['settings'] ?? null)
+            || !is_array($payload['services'] ?? []) || count($payload['services'] ?? []) > 100) {
             return new WP_REST_Response(['success' => false], 400);
+        }
+        foreach (['necessary', 'statistics', 'marketing', 'external_media'] as $category) {
+            if (!is_bool($payload['settings'][$category] ?? null)) {
+                return new WP_REST_Response(['success' => false], 400);
+            }
+        }
+        foreach (($payload['services'] ?? []) as $id => $allowed) {
+            if (!is_string($id) || strlen($id) > 128 || !is_bool($allowed)) {
+                return new WP_REST_Response(['success' => false], 400);
+            }
+        }
+        foreach (['timestamp' => 64, 'bannerVersion' => 64, 'privacyPolicyVersion' => 128] as $field => $limit) {
+            if (!is_string($payload[$field] ?? '') || strlen($payload[$field] ?? '') > $limit) {
+                return new WP_REST_Response(['success' => false], 400);
+            }
         }
 
         $uid = sanitize_key((string) ($payload['uid'] ?? ''));
@@ -747,8 +770,6 @@ html.consent-pending #consent-banner * {
         if ($uid === '') {
             return new WP_REST_Response(['success' => false], 400);
         }
-
-        self::install_consent_log_table();
 
         $categories = [
             'necessary' => !empty($payload['settings']['necessary']),
@@ -1519,6 +1540,10 @@ html.consent-pending #consent-banner * {
                 height: 16px;
                 border-radius: 5px;
                 border: 1px solid var(--ccm-color-border);
+                background: var(--ccm-color-bg);
+            }
+
+            .n24cm-preview-categories > span:first-child i {
                 background: var(--ccm-color-accent);
                 box-shadow: inset 0 0 0 3px var(--ccm-color-bg);
             }
@@ -1570,10 +1595,16 @@ html.consent-pending #consent-banner * {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border-radius: 0;
-                background: transparent;
+                border-radius: 50%;
+                padding: 7px;
+                box-sizing: border-box;
+                background: var(--ccm-color-floating-bg);
                 color: var(--ccm-color-floating-icon);
                 box-shadow: none;
+            }
+
+            .n24cm-preview-floating:hover {
+                background: var(--ccm-color-floating-hover-bg);
             }
 
             .n24cm-preview-floating svg {
@@ -1824,9 +1855,13 @@ html.consent-pending #consent-banner * {
 
                 colorFields.forEach((field) => {
                     const cssVar = field.dataset.cssVar;
+                    const transparentToggle = field.closest('td')?.querySelector('.n24cm-transparent-toggle');
+                    const transparentValue = field.closest('td')?.querySelector('.n24cm-transparent-value');
+                    const initiallyTransparent = transparentToggle?.checked === true;
+                    if (initiallyTransparent) field.value = '#001323';
                     const onColorChange = function (value) {
                         if (previewStage && cssVar) {
-                            previewStage.style.setProperty(cssVar, value);
+                            previewStage.style.setProperty(cssVar, transparentToggle?.checked ? 'transparent' : value);
                         }
                         updateGradient();
                     };
@@ -1845,6 +1880,19 @@ html.consent-pending #consent-banner * {
                                 onColorChange(field.value);
                             }
                         });
+                    }
+                    if (transparentToggle && transparentValue) {
+                        const applyTransparency = () => {
+                            const transparent = transparentToggle.checked;
+                            field.disabled = transparent;
+                            transparentValue.disabled = !transparent;
+                            const picker = field.closest('.wp-picker-container');
+                            if (picker) picker.style.display = transparent ? 'none' : '';
+                            else field.hidden = transparent;
+                            onColorChange(field.value);
+                        };
+                        transparentToggle.addEventListener('change', applyTransparency);
+                        applyTransparency();
                     }
                 });
 
@@ -2839,9 +2887,12 @@ html.consent-pending #consent-banner * {
                     <p data-preview-text="intro_text"><?php echo esc_html($options['intro_text']); ?></p>
                     <div class="n24cm-preview-categories">
                         <span><i></i><span data-preview-text="necessary_label"><?php echo esc_html($options['necessary_label']); ?></span></span>
-                        <span><i></i><span data-preview-text="statistics_inactive_label"><?php echo esc_html($options['statistics_inactive_label']); ?></span></span>
-                        <span><i></i><span data-preview-text="marketing_inactive_label"><?php echo esc_html($options['marketing_inactive_label']); ?></span></span>
-                        <span><i></i><span data-preview-text="external_media_inactive_label"><?php echo esc_html($options['external_media_inactive_label']); ?></span></span>
+                        <?php $preview_settings = $this->get_frontend_settings(); ?>
+                        <?php foreach (['statistics', 'marketing', 'external_media'] as $category) : ?>
+                            <?php if (!empty($preview_settings['services'][$category])) : ?>
+                                <span><i></i><span data-preview-text="<?php echo esc_attr($category . '_label'); ?>"><?php echo esc_html($options[$category . '_label']); ?></span></span>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
                     <div class="n24cm-preview-info">
                         <span data-preview-text="info_default"><?php echo esc_html($options['info_default']); ?></span>
@@ -3674,14 +3725,27 @@ html.consent-pending #consent-banner * {
     private function render_color_row(string $key, string $label, array $options): void
     {
         $css_var = $this->get_css_var_for_color($key);
+        $transparency_control = '';
+        if (in_array($key, ['color_floating_background', 'color_floating_hover_background'], true)) {
+            $is_transparent = ($options[$key] ?? '') === 'transparent';
+            $transparency_control = sprintf(
+                '<label style="display:block;margin-top:8px"><input type="checkbox" class="n24cm-transparent-toggle" %1$s> %2$s</label><input type="hidden" class="n24cm-transparent-value" name="%3$s[%4$s]" value="transparent" %5$s>',
+                checked($is_transparent, true, false),
+                esc_html__('Transparent', self::TEXT_DOMAIN),
+                esc_attr(self::OPTION_NAME),
+                esc_attr($key),
+                $is_transparent ? '' : 'disabled'
+            );
+        }
 
         printf(
-            '<tr><th scope="row"><label for="n24-consent-manager-%1$s">%2$s</label></th><td><input id="n24-consent-manager-%1$s" type="text" class="regular-text n24cm-color-field" data-css-var="%5$s" name="%3$s[%1$s]" value="%4$s" placeholder="#a67c00 oder rgba(...)"></td></tr>',
+            '<tr><th scope="row"><label for="n24-consent-manager-%1$s">%2$s</label></th><td><input id="n24-consent-manager-%1$s" type="text" class="regular-text n24cm-color-field" data-css-var="%5$s" name="%3$s[%1$s]" value="%4$s" placeholder="#a67c00 oder rgba(...)">%6$s</td></tr>',
             esc_attr($key),
             esc_html($label),
             esc_attr(self::OPTION_NAME),
             esc_attr($options[$key] ?? ''),
-            esc_attr($css_var)
+            esc_attr($css_var),
+            $transparency_control
         );
     }
 
@@ -5756,6 +5820,10 @@ html.consent-pending #consent-banner * {
     private function sanitize_color(string $value, string $fallback): string
     {
         $value = trim($value);
+
+        if (strtolower($value) === 'transparent') {
+            return 'transparent';
+        }
 
         if (preg_match('/^#([0-9a-fA-F]{3})$/', $value, $matches)) {
             return sprintf(

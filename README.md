@@ -82,3 +82,23 @@ add_filter('n24_consent_manager_services', function (array $services): array {
     return $services;
 });
 ```
+
+
+## Fehlerkorrekturen in Version 1.8.53
+
+- Gesperrter oder beschädigter Browser-Speicher verhindert das Öffnen und Bedienen des Dialogs nicht mehr.
+- „Immer laden“ speichert die Einwilligung einschließlich Versionsangaben ausschließlich für den gewählten Dienst; neue Dienste werden nicht automatisch freigegeben.
+- Widerruf bereits geladener Dienst-Skripte lädt die Seite nach dem Speichern neu.
+- Dienst-Auswahl wird auch in der lokal gespeicherten Historie mitgeführt.
+- Tab-Wechsel bleibt auf den Consent-Dialog beschränkt; Tastaturfokus, sichtbare Fokusmarkierungen und mobile Titel wurden verbessert.
+- Separate „Transparent“-Schalter für Hintergrund und Hover-Hintergrund des schwebenden Cookie-Buttons; Transparenz bleibt beim Speichern erhalten.
+- Konfigurierte Hintergrund- und Hoverfarben des schwebenden Buttons werden angewendet; die Admin-Vorschau zeigt tatsächlich verfügbare Kategorien.
+- Fehlerhafte und übergroße Protokollanfragen werden vor Datenbankänderungen abgewiesen; die Protokolltabelle wird nicht bei jeder Anfrage neu geprüft/angelegt.
+
+Die Website-Farben werden weiterhin über WordPress-Einstellungen gespeichert, nicht als globale Plugin-Vorgaben erzwungen.
+
+### Entwicklertests
+
+`node tests/browser.cjs` benötigt Playwright. Optional setzen `N24_PLAYWRIGHT_MODULE` und `N24_BROWSER_PATH` den Modul- beziehungsweise Browserpfad. Die isolierten Browserfälle verwenden ausschließlich Testdienste und abgefangene Protokollanfragen.
+
+`php tests/smoke.php` benötigt `N24_WP_LOAD` mit dem Pfad zur lokalen `wp-load.php` einer aktiven Testinstallation. Der Test prüft Farb-/SVG-Bereinigung und ungültige REST-Anfragen, ohne Testeinwilligungen zu protokollieren. Beim WordPress-Start laufen die normalen Plugin-Hooks.
